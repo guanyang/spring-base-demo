@@ -143,4 +143,12 @@
     </plugins>
   </build>
 
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>gy-repositories</name>
+      <url>https://maven.pkg.github.com/guanyang/spring-base-demo</url>
+    </repository>
+  </distributionManagement>
+
 </project>
