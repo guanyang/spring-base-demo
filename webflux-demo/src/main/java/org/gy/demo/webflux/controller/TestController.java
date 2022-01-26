@@ -61,7 +61,7 @@ public class TestController {
     @GetMapping("/list")
     public Mono<String> list() {
         return webClient.get()
-            .uri("http://127.0.0.1:8080/api/test/v2/hello/8000")
+            .uri("http://127.0.0.1:8080/api/test/v2/hello/50")
             .retrieve().bodyToMono(String.class);
     }
 
