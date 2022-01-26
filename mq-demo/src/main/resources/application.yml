@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: rocketmq-demo
+  redis:
+    host: 10.1.104.18
+    port: 6005
+    password: veGNOlAju847vHCs
+    database: 1
+
+rocketmq:
+  producer:
+    isOnOff: on
+    groupName: ${spring.application.name}
+    #mq\u7684nameserver\u5730\u5740
+    namesrvAddr: 127.0.0.1:9876
+    #\u6D88\u606F\u6700\u5927\u957F\u5EA6 \u9ED8\u8BA41024*4(4M)
+    maxMessageSize: 4096
+    #\u53D1\u9001\u6D88\u606F\u8D85\u65F6\u65F6\u95F4,\u9ED8\u8BA43000
+    sendMsgTimeout: 3000
+    #\u53D1\u9001\u6D88\u606F\u5931\u8D25\u91CD\u8BD5\u6B21\u6570\uFF0C\u9ED8\u8BA42
+    retryTimesWhenSendFailed: 2
+  consumer:
+    isOnOff: on
+    groupName: ${spring.application.name}
+    #mq\u7684nameserver\u5730\u5740
+    namesrvAddr: 127.0.0.1:9876
+    #\u8BE5\u6D88\u8D39\u8005\u8BA2\u9605\u7684\u4E3B\u9898\u548Ctags("*"\u53F7\u8868\u793A\u8BA2\u9605\u8BE5\u4E3B\u9898\u4E0B\u6240\u6709\u7684tags),\u683C\u5F0F\uFF1Atopic~tag1||tag2||tag3;topic2~*;
+    topics: DemoTopic~*;
+    consumeThreadMin: 1
+    consumeThreadMax: 1
+    #\u8BBE\u7F6E\u4E00\u6B21\u6D88\u8D39\u6D88\u606F\u7684\u6761\u6570\uFF0C\u9ED8\u8BA4\u4E3A1\u6761
+    consumeMessageBatchMaxSize: 1

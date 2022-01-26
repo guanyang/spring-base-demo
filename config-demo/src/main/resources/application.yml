@@ -1,0 +1,14 @@
+server:
+  port: 8083
+  tomcat:
+    max-threads: 500
+    min-spare-threads: 50
+
+spring:
+  application:
+    name: config-demo
+  profiles:
+#    active: live
+
+conf:
+  name: name1
