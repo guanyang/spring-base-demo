@@ -1,7 +1,7 @@
 package org.gy.demo.dubbo.provider.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Service;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.gy.demo.dubbo.api.dto.TestRequest;
 import org.gy.demo.dubbo.api.dto.TestResponse;
 import org.gy.demo.dubbo.api.service.TestService;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@Service(version = "1.0.0", timeout = 3000)
+@DubboService(version = "1.0.0", timeout = 3000)
 public class TestServiceImpl implements TestService {
 
     @Override
