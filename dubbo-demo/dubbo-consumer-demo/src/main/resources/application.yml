@@ -43,3 +43,6 @@ dubbo:
   consumer:
     group: live
     version: 1.0.0
+  config-center:
+    address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
+    group: live
