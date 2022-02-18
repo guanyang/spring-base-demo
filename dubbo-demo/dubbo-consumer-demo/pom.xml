@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.gy.demo</groupId>
+    <artifactId>dubbo-demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>dubbo-consumer-demo</artifactId>
+  <packaging>jar</packaging>
+  <properties>
+    <!--<dubbo.version>2.7.15</dubbo.version>-->
+    <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.gy.demo</groupId>
+      <artifactId>dubbo-api-demo</artifactId>
+    </dependency>
+
+    <!--<dependency>-->
+      <!--<groupId>io.netty</groupId>-->
+      <!--<artifactId>netty-all</artifactId>-->
+      <!--<version>4.0.35.Final</version>-->
+    <!--</dependency>-->
+
+    <!-- Dubbo Spring Boot Starter -->
+    <!--<dependency>-->
+      <!--<groupId>com.alibaba.boot</groupId>-->
+      <!--<artifactId>dubbo-spring-boot-starter</artifactId>-->
+      <!--<version>0.2.1.RELEASE</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>com.alibaba</groupId>-->
+      <!--<artifactId>dubbo</artifactId>-->
+      <!--<version>${dubbo.version}</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>io.netty</groupId>-->
+      <!--<artifactId>netty-all</artifactId>-->
+    <!--</dependency>-->
+
+    <!-- Dubbo Spring Boot Starter -->
+    <dependency>
+      <groupId>org.apache.dubbo</groupId>
+      <artifactId>dubbo-spring-boot-starter</artifactId>
+    </dependency>
+    <!--zookeeper 注册中心客户端引入 -->
+    <dependency>
+      <groupId>org.apache.dubbo</groupId>
+      <artifactId>dubbo-dependencies-zookeeper</artifactId>
+      <type>pom</type>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Spring Boot -->
+      <!--<dependency>-->
+        <!--<groupId>org.springframework.boot</groupId>-->
+        <!--<artifactId>spring-boot-dependencies</artifactId>-->
+        <!--<version>${spring-boot.version}</version>-->
+        <!--<type>pom</type>-->
+        <!--<scope>import</scope>-->
+      <!--</dependency>-->
+      <!-- Dubbo dependencies -->
+      <!--<dependency>-->
+        <!--<groupId>com.alibaba</groupId>-->
+        <!--<artifactId>dubbo-dependencies-bom</artifactId>-->
+        <!--<version>${dubbo.version}</version>-->
+        <!--<type>pom</type>-->
+        <!--<scope>import</scope>-->
+      <!--</dependency>-->
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

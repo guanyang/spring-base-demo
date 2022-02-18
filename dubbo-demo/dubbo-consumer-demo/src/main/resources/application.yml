@@ -1,0 +1,45 @@
+server:
+  port: 8081
+  tomcat:
+    max-threads: 500
+    min-spare-threads: 50
+
+spring:
+  application:
+    name: dubbo-consumer-demo
+#  dubbo:
+#    application:
+#      name: dubbo-consumer-demo
+#      logger: slf4j
+#      owner: demo # owner 建议填写项目负责人，dubbo-admin 中会显示 owner ，方便我们联系。
+#      organization: demo-java
+#    zkRegistry:
+#      address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
+#      timeout: 60000   #超时时间设置，太短可能会报错单位是ms，也就是60秒
+#      client: zkclient
+#      group: live
+#      version: 1.0.0
+#    dubboProtocol:
+#      name: dubbo
+#      port: 47556
+#    version: 1.0.0 # provider 版本协议说明，dubbo 中 provider 是可以允许存在多个版本并行，具体命名建议参考 x.x 命名规范。
+#    group: live
+
+dubbo:
+  application:
+    name: dubbo-consumer-demo
+    logger: slf4j
+  registry:
+    address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
+    timeout: 60000   #超时时间设置，太短可能会报错单位是ms，也就是60秒
+    group: live
+  metadata-report:
+    address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
+    group: live
+    timeout: 60000   #超时时间设置，太短可能会报错单位是ms
+  protocol:
+    name: dubbo
+    port: 47556
+  consumer:
+    group: live
+    version: 1.0.0

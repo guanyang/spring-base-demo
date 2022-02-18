@@ -1,0 +1,42 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: dubbo-provider-demo
+#  dubbo:
+#    application:
+#      name: dubbo-provider-demo
+#      logger: slf4j
+#      owner: demo # owner 建议填写项目负责人，dubbo-admin 中会显示 owner ，方便我们联系。
+#      organization: demo-java
+#    zkRegistry:
+#      address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
+#      timeout: 60000   #超时时间设置，太短可能会报错单位是ms，也就是60秒
+#      client: zkclient
+#      group: live
+#      version: 1.0.0
+#    dubboProtocol:
+#      name: dubbo
+#      port: 43916
+#    version: 1.0.0 # provider 版本协议说明，dubbo 中 provider 是可以允许存在多个版本并行，具体命名建议参考 x.x 命名规范。
+#    group: live
+
+dubbo:
+  application:            #应用配置，用于配置当前应用信息，不管该应用是提供者还是消费者。
+    name: dubbo-provider-demo #应用名称
+  registry:
+    address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181   #注册中心的ip可以直接加上端口，也可以同下面的port设置
+    timeout: 60000   #超时时间设置，太短可能会报错单位是ms
+    group: live
+  metadata-report:
+    address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
+    group: live
+    timeout: 60000   #超时时间设置，太短可能会报错单位是ms
+  protocol:     #指定使用dubbo协议，端口是20880可以是其他端口不影响使用
+    name: dubbo
+    port: 43916
+  provider:
+    group: live
+    version: 1.0.0
+
