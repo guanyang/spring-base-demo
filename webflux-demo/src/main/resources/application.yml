@@ -1,0 +1,7 @@
+server:
+  port: 8189
+
+logging:
+  level:
+    root: warn
+    org.springframework.boot: info
