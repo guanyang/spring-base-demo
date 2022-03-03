@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,11 +33,22 @@ import reactor.core.publisher.Mono;
 /**
  * TestController.
  */
+@Slf4j
 @RestController
 @RequestMapping("/test")
 public class HttpTestController {
 
     private static final String DEFAULT_FILE = "/data/apiTest/tan.response";
+
+    private static byte[] ADX_TAN;
+
+    static {
+        try {
+            ADX_TAN = IOUtils.toByteArray(new FileInputStream(DEFAULT_FILE));
+        } catch (IOException e) {
+            log.error("load adx tan exception:file={}.", DEFAULT_FILE, e);
+        }
+    }
 
     /**
      * Find by user id string.
@@ -53,9 +65,11 @@ public class HttpTestController {
     }
 
     @PostMapping(value = "/adx/tan", produces = "application/octet-stream")
-    public Mono<byte[]> adx() throws IOException {
-        byte[] bytes = IOUtils.toByteArray(new FileInputStream(DEFAULT_FILE));
-        return Mono.just(bytes);
+    public Mono<byte[]> adx(int init) throws IOException {
+        if (init == 1) {
+            ADX_TAN = IOUtils.toByteArray(new FileInputStream(DEFAULT_FILE));
+        }
+        return Mono.just(ADX_TAN);
     }
 
 
