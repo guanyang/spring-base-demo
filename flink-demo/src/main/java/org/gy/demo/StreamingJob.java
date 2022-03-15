@@ -19,7 +19,7 @@
 package org.gy.demo;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
@@ -44,12 +44,12 @@ public class StreamingJob {
         // set up the streaming execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        DataStream<Tuple2<String, Integer>> dataStream = env
+        DataStream<Tuple3<String, String, Integer>> dataStream = env
             .socketTextStream("localhost", 9999)
             .flatMap(new Splitter())
             .keyBy(value -> value.f0)
             .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
-            .sum(1);
+            .sum(2);
 
         dataStream.print();
 
@@ -57,14 +57,14 @@ public class StreamingJob {
         env.execute("Flink Streaming Java API Skeleton");
     }
 
-    public static class Splitter implements FlatMapFunction<String, Tuple2<String, Integer>> {
+    public static class Splitter implements FlatMapFunction<String, Tuple3<String, String, Integer>> {
 
         private static final long serialVersionUID = -2357422926264435702L;
 
         @Override
-        public void flatMap(String sentence, Collector<Tuple2<String, Integer>> out) throws Exception {
+        public void flatMap(String sentence, Collector<Tuple3<String, String, Integer>> out) throws Exception {
             for (String word : sentence.split(" ")) {
-                out.collect(new Tuple2<String, Integer>(word, 1));
+                out.collect(new Tuple3<String, String, Integer>(word, String.valueOf(System.currentTimeMillis()), 1));
             }
         }
     }
