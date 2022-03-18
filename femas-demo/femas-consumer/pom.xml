@@ -4,23 +4,34 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.gy.demo</groupId>
-    <artifactId>spring-base-demo</artifactId>
+    <artifactId>femas-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>gemfire-demo</artifactId>
+  <artifactId>femas-consumer</artifactId>
   <packaging>jar</packaging>
-  <properties>
-    <spring-geode.version>1.6.2</spring-geode.version>
-    <spring-boot.version>2.6.3</spring-boot.version>
-  </properties>
   <dependencies>
     <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.tencent.tsf</groupId>
+      <artifactId>femas-springcloud-greenwich-starter</artifactId>
+    </dependency>
+    <!-- nacos获取配置需要的依赖 -->
+    <dependency>
+      <groupId>com.alibaba.cloud</groupId>
+      <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.geode</groupId>
-      <artifactId>spring-geode-starter</artifactId>
+      <groupId>com.alibaba.cloud</groupId>
+      <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
     </dependency>
 
     <dependency>
@@ -34,24 +45,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.geode</groupId>
-        <artifactId>spring-geode-bom</artifactId>
-        <version>${spring-geode.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <build>
     <plugins>

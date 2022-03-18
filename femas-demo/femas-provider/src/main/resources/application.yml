@@ -1,0 +1,20 @@
+server:
+  port: 8190
+
+spring:
+  application:
+    name: femas-provider
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      username: nacos
+      password: nacos
+      config:
+        server-addr: 127.0.0.1:8848
+
+logging:
+  file: /Users/gy/logs/femas/${spring.application.name}/${spring.application.name}
+  level:
+    root: warn
+    org.springframework.boot: info
