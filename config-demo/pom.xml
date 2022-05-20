@@ -12,6 +12,7 @@
   <properties>
     <java.version>1.8</java.version>
     <spring-boot.version>2.6.3</spring-boot.version>
+    <mainClass>org.gy.demo.configdemo.ConfigDemoApplication</mainClass>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -55,6 +56,26 @@
             </exclude>
           </excludes>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>launcher-maven-plugin</artifactId>
+        <version>1.0.1-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>launcher</goal>
+            </goals>
+            <configuration>
+              <apps>
+                <app>
+                  <name>${artifactId}</name>
+                  <mainClass>${mainClass}</mainClass>
+                </app>
+              </apps>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
