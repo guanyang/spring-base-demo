@@ -1,11 +1,29 @@
-### spring-base-demo
+## spring-base-demo
+
+### Quickstart Guide
+
+可以通过根目录`main.sh`快速使用：
+
+```
+Usage:  $0 COMMAND [arg...]
+
+Commands:
+    package             Maven package for an application
+    build-image         Build docker image for an application
+    deploy-image        Deploy docker image for an application
+    docker-run          Docker run command for an application
+    run                 Shell run  command for an application
+```
 
 ### 模块构建
+
 #### mvn打包
+
 ```
 $> APP_MODE_NAME=webflux-demo
 $> mvn -T 4 -B -pl ${APP_MODE_NAME} -am clean package -Dmaven.test.skip=true -U -e
 ```
+
 - 将`APP_MODE_NAME`替换成对应模块名称
 
 #### 构建docker镜像
