@@ -72,6 +72,6 @@ $> docker run --name ${APP_MODE_NAME} -d -p 8090:8090 --link skywalking:skywalki
 - 探活入口：`http://127.0.0.1:8090/hello`
 
 ### 参考文档
-
+- [guanyang/spring-launcher-parent](https://github.com/guanyang/spring-launcher-parent)
 - [gs-spring-boot-docker](https://github.com/spring-guides/gs-spring-boot-docker)
 - [Topical Guide on Docker](https://spring.io/guides/topicals/spring-boot-docker)
