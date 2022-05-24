@@ -64,6 +64,14 @@ function main {
                     MAIN_LAUNCHER_RUN_DIR="$2"
                     shift
                     ;;
+                "-in" | "--image-name" )
+                    PARAM_IMAGE_NAME="$2"
+                    shift
+                    ;;
+                "-e" | "--app-env")
+                    PARAM_APP_ENV="$2"
+                    shift
+                    ;;
                 "-h" | "--help" )
                     main::func::print_action_usage "${MAIN_ACTION}"
                     echo ""
@@ -109,11 +117,15 @@ main::func::print_action_usage() {
     if [[ ${action_name} = "build-image" || ${action_name} = "deploy-image" || ${action_name} = "docker-run" ]]; then
         print_arg_usage '-tn'   '--tag-namespace'  "[Optional]Set docker tag namespace for repository, default value: guanyangsunlight (e.g. -tn 'your namespace')"
     fi
+    if [[ ${action_name} = "deploy-image" || ${action_name} = "docker-run" ]]; then
+        print_arg_usage '-in'   '--image-name'    "[Optional]Set special docker image name (e.g. -in 'web-demo:v1')"
+    fi
     #运行相关参数
     if [[ ${action_name} = "docker-run" || ${action_name} = "run" ]]; then
         print_arg_usage '-jo'   '--java-opts'     "[Optional]Set Java VM Options for your application (e.g. -jo '-Xmx4g -Xms4g')"
         print_arg_usage '-p'    '--server-port'   "[Optional]SpringBoot web container port, port range [1024,65535], default value: 8080 (e.g. -p '8080')"
         print_arg_usage '-jbs'  '--javaagent-bs'  "[Optional]Set skywalking agent backend_service for your application (e.g. -jbs '127.0.0.1:11800')"
+        print_arg_usage '-e'    '--app-env'       "[Optional]Set application environment [prod/gray/pre/test/dev] (e.g. -e dev)"
     fi
     if [[ ${action_name} = "run" ]]; then
         print_arg_usage '-rd'   '--run-dir'       "[Optional]Set web container run dir, default value: /home/www (e.g. -rd '/home/www')"
@@ -149,7 +161,8 @@ main::action::run(){
   fi
   local app_run_path="${launcher_run_dir}/${MAIN_APP_MODULE_NAME}"
   if [[ -d "${app_run_path}" ]]; then
-      local app_run_backup_path="${launcher_run_dir}/${MAIN_APP_MODULE_NAME}_backup_${MAIN_ACTION_TIMESTAMP_IN_SECONDS}"
+      local current_time_in_seconds=$(date '+%Y%m%d%H%M%S')
+      local app_run_backup_path="${launcher_run_dir}/${MAIN_APP_MODULE_NAME}_backup_${current_time_in_seconds}"
       log_info "app launcher data backup path:  ${app_run_backup_path}"
       mv ${app_run_path} ${app_run_backup_path}
   fi
@@ -172,8 +185,16 @@ main::action::run(){
 
 main::action::docker-run(){
   log_info "docker-run action start."
-  #构建镜像
-  main::action::build-image "$@"
+
+  local docker_image_name=${PARAM_IMAGE_NAME}
+  if [[ -n ${docker_image_name} ]]; then
+      #如果指定了镜像参数，则不需要再次构建镜像
+      main::check::check-module "$@"
+  else
+      #构建镜像
+      main::action::build-image "$@"
+      docker_image_name=${MAIN_DOCKER_TAG_NAME}
+  fi
 
   #构建launcher.sh启动参数
   main::check::check-launcher-args
@@ -181,9 +202,10 @@ main::action::docker-run(){
   local java_port=${MAIN_LAUNCHER_RUN_PORT}
   local launcher_args=${MAIN_LAUNCHER_RUN_SH}
   #定义docker容器名称
-  local docker_name=${MAIN_APP_MODULE_NAME}-${MAIN_APP_MODULE_JAR_VERSION}
+  local current_time_in_seconds=$(date '+%Y%m%d%H%M%S')
+  local docker_name=${MAIN_APP_MODULE_NAME}-${current_time_in_seconds}
   #运行docker容器
-  docker run -dt --name "${docker_name}" -p ${java_port}:${java_port} "${MAIN_DOCKER_TAG_NAME}" bash -c "${launcher_args}"
+  docker run -d --name "${docker_name}" -p ${java_port}:${java_port} "${docker_image_name}" bash -c "${launcher_args}"
 
   log_info "docker-run action success. Visit 'http://127.0.0.1:${java_port}/hello' for more information."
 }
@@ -212,6 +234,11 @@ main::check::check-launcher-args(){
     if [[ -n ${javaagent_bs} ]]; then
         launcher_args+=" --javaagent-bs '${javaagent_bs}'"
     fi
+    #设置环境
+    local java_env="${PARAM_APP_ENV}"
+    if [[ -n ${java_env} ]]; then
+        launcher_args+=" -e ${java_env}"
+    fi
     readonly MAIN_LAUNCHER_RUN_PORT=${java_port}
     readonly MAIN_LAUNCHER_RUN_SH=${launcher_args}
 
@@ -221,13 +248,17 @@ main::check::check-launcher-args(){
 main::action::deploy-image(){
   log_info "deploy-image action start."
 
-  #构建镜像
-  main::action::build-image "$@"
+  local docker_image_name=${PARAM_IMAGE_NAME}
+  if [[ -z ${docker_image_name} ]]; then
+      #构建镜像
+      main::action::build-image "$@"
+      docker_image_name=${MAIN_DOCKER_TAG_NAME}
+  fi
 
   #上传到私服
-  docker push "${MAIN_DOCKER_TAG_NAME}"
+  docker push "${docker_image_name}"
   #删除本地镜像，减少本地空间占用
-  docker rmi -f "${MAIN_DOCKER_TAG_NAME}"
+  docker rmi -f "${docker_image_name}"
 
   log_info "deploy-image action success."
 }
@@ -268,8 +299,8 @@ main::check::check-docker-tag(){
         log_error "Please do package action first."
         main::abort
     fi
-
-    readonly MAIN_DOCKER_TAG_NAME="${docker_tag_prefix}/${MAIN_APP_PARENT_NAME}:${MAIN_APP_MODULE_NAME}-${MAIN_APP_MODULE_JAR_VERSION}-${MAIN_ACTION_TIMESTAMP_IN_SECONDS}"
+    local current_time_in_seconds=$(date '+%Y%m%d%H%M%S')
+    readonly MAIN_DOCKER_TAG_NAME="${docker_tag_prefix}/${MAIN_APP_PARENT_NAME}:${MAIN_APP_MODULE_NAME}-${MAIN_APP_MODULE_JAR_VERSION}-${current_time_in_seconds}"
 
     log_info "app docker tag: ${MAIN_DOCKER_TAG_NAME}"
 }
