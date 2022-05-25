@@ -13,6 +13,9 @@ readonly MAIN_CONS_LAUNCHER_RUN_DIR=${GLOBAL_LAUNCHER_RUN_DIR:-"/home/www"}
 #docker tag命名空间定义，可通过GLOBAL_DOCKER_TAG_NAMESPACE自定义，默认guanyangsunlight
 readonly MAIN_CONS_DOCKER_TAG_NAMESPACE=${GLOBAL_DOCKER_TAG_NAMESPACE:-guanyangsunlight}
 
+readonly MAIN_CONS_DEFAULT_SERVICE_PORT=8080
+readonly MAIN_CONS_DEFAULT_SERVICE_JAVA_OPTS="-Dfile.encoding=UTF-8 -Duser.timezone=Asia/Shanghai -XX:InitialRAMPercentage=50.0 -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=150"
+
 readonly MAIN_RUNTIME_LOG_DIR=${MAIN_FILE_DIR}/.log
 
 # Variables init
@@ -168,17 +171,17 @@ main::action::run(){
   fi
 
   tar -zxf ${app_module_launcher} -C ${launcher_run_dir}
-  #删除旧软链
-  rm /usr/local/bin/launcher.sh
-  ln -s ${launcher_run_dir}/${MAIN_APP_MODULE_NAME}/bin/launcher.sh /usr/local/bin/launcher.sh
 
   #构建launcher.sh启动参数
-  main::check::check-launcher-args
+  main::check::check-launcher-sh "${app_run_path}"
+  main::check::check-launcher-args "start"
 
   local java_port=${MAIN_LAUNCHER_RUN_PORT}
   local launcher_args=${MAIN_LAUNCHER_RUN_SH}
+  #设置后台运行
+  launcher_args+=" -d"
 
-  eval ${launcher_args} -d
+  eval "${launcher_args}"
 
   log_info "run action success. Visit 'http://127.0.0.1:${java_port}/hello' for more information."
 }
@@ -197,7 +200,8 @@ main::action::docker-run(){
   fi
 
   #构建launcher.sh启动参数
-  main::check::check-launcher-args
+  main::check::check-launcher-sh "/usr/local"
+  main::check::check-launcher-args "start"
 
   local java_port=${MAIN_LAUNCHER_RUN_PORT}
   local launcher_args=${MAIN_LAUNCHER_RUN_SH}
@@ -210,39 +214,56 @@ main::action::docker-run(){
   log_info "docker-run action success. Visit 'http://127.0.0.1:${java_port}/hello' for more information."
 }
 
+main::check::check-launcher-sh(){
+    #构建launcher.sh脚本路径
+    local launcher_path="${1}"
+    if [[ -z ${launcher_path} ]]; then
+        launcher_path="/usr/local"
+    fi
+    local launcher_sh="${launcher_path}/bin/launcher.sh"
+    if [[ ! -f "${launcher_sh}" ]]; then
+        log_info "app launcher file \"${launcher_sh}\" not exists."
+        main::abort
+    fi
+    readonly MAIN_APP_LAUNCHER_PATH=${launcher_sh}
+
+    log_info "Launcher path: ${MAIN_APP_LAUNCHER_PATH}"
+}
+
 main::check::check-launcher-args(){
     #构建launcher.sh启动参数
-    local launcher_args="/usr/local/bin/launcher.sh start -n ${MAIN_APP_MODULE_NAME}"
-    #添加jvm启动参数
-    local java_options="${MAIN_APP_JAVA_OPTIONS}"
-    if [[ -z ${java_options} ]]; then
-        java_options="-Dfile.encoding=UTF-8 -Duser.timezone=Asia/Shanghai -XX:InitialRAMPercentage=50.0 -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=150"
+    local action_name="${1}"
+    if [[ -z ${action_name} ]]; then
+        action_name="start"
     fi
-    if [[ -n ${java_options} ]]; then
-        launcher_args+=" -jo '${java_options}'"
-    fi
-    #设置端口，默认8080
-    local java_port="${MAIN_APP_JAVA_PORT}"
-    if [[ -z ${java_port} ]]; then
-        java_port=8080
-    fi
-    main::check_port_range ${java_port}
-    launcher_args+=" -a '--server.port=${java_port}'"
+    local launcher_args="${MAIN_APP_LAUNCHER_PATH} ${action_name} -n ${MAIN_APP_MODULE_NAME}"
+    if [[ ${action_name} = "start" ]]; then
+        #添加jvm启动参数
+        local java_options="${MAIN_APP_JAVA_OPTIONS:-${MAIN_CONS_DEFAULT_SERVICE_JAVA_OPTS}}"
+        if [[ -n ${java_options} ]]; then
+            launcher_args+=" -jo '${java_options}'"
+        fi
+        #设置端口，默认8080
+        local java_port="${MAIN_APP_JAVA_PORT:-${MAIN_CONS_DEFAULT_SERVICE_PORT}}"
+        main::check_port_range ${java_port}
+        launcher_args+=" -a '--server.port=${java_port}'"
 
-    #设置javaagent_bs
-    local javaagent_bs=${MAIN_APP_JAVAAGENT_BS}
-    if [[ -n ${javaagent_bs} ]]; then
-        launcher_args+=" --javaagent-bs '${javaagent_bs}'"
+        #设置javaagent_bs
+        local javaagent_bs=${MAIN_APP_JAVAAGENT_BS}
+        if [[ -n ${javaagent_bs} ]]; then
+            launcher_args+=" --javaagent-bs '${javaagent_bs}'"
+        fi
+        #设置环境
+        local java_env="${PARAM_APP_ENV}"
+        if [[ -n ${java_env} ]]; then
+            launcher_args+=" -e ${java_env}"
+        fi
+
+        readonly MAIN_LAUNCHER_RUN_PORT=${java_port}
     fi
-    #设置环境
-    local java_env="${PARAM_APP_ENV}"
-    if [[ -n ${java_env} ]]; then
-        launcher_args+=" -e ${java_env}"
-    fi
-    readonly MAIN_LAUNCHER_RUN_PORT=${java_port}
     readonly MAIN_LAUNCHER_RUN_SH=${launcher_args}
 
-    log_info "Launcher run sh: ${MAIN_LAUNCHER_RUN_SH} , run port: ${MAIN_LAUNCHER_RUN_PORT}"
+    log_info "Launcher run sh: ${MAIN_LAUNCHER_RUN_SH}"
 }
 
 main::action::deploy-image(){
