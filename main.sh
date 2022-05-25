@@ -39,7 +39,7 @@ function main {
         while [[ $# -gt 0 ]]
         do
             case $1 in
-                "-m" | "--module-name")
+                "-n" | "--app-name")
                     PARAM_MODULE_NAME="$2"
                     shift
                     ;;
@@ -73,6 +73,10 @@ function main {
                     ;;
                 "-e" | "--app-env")
                     PARAM_APP_ENV="$2"
+                    shift
+                    ;;
+                "-var" | "--var-config")
+                    PARAM_VARIABLES="$2"
                     shift
                     ;;
                 "-h" | "--help" )
@@ -109,13 +113,14 @@ main::func::print_action_usage() {
         action_name="package"
     fi
     printf "Usage:  $0 ${action_name} [OPTIONS]\n\n"
-    printf "Example:  $0 ${action_name} -m web-demo\n\n"
+    printf "Example:  $0 ${action_name} -n web-demo\n\n"
     printf "${action_name} for an application\n\n"
     printf 'Options:\n'
 
     #基础参数
-    print_arg_usage '-m'    '--module-name'       "[Required]Set application module (e.g. -m 'web-demo')"
+    print_arg_usage '-n'    '--app-name'          "[Required]Set application name (e.g. -n 'web-demo')"
     print_arg_usage '-mvn'  '--maven-package'     "[Optional]Set maven package args, default value: -Dmaven.test.skip=true -Djava.io.tmpdir=/tmp (e.g. -mvn '-Dmaven.test.skip=true')"
+    print_arg_usage '-var'  '--var-config'        "[Optional]Set system variables (e.g. -var 'APP_SRC_GROUP=DEMO')"
     #docker相关参数
     if [[ ${action_name} = "build-image" || ${action_name} = "deploy-image" || ${action_name} = "docker-run" ]]; then
         print_arg_usage '-tn'   '--tag-namespace'  "[Optional]Set docker tag namespace for repository, default value: guanyangsunlight (e.g. -tn 'your namespace')"
@@ -260,6 +265,10 @@ main::check::check-launcher-args(){
         fi
 
         readonly MAIN_LAUNCHER_RUN_PORT=${java_port}
+    fi
+    #添加系统参数
+    if [[ -n ${PARAM_VARIABLES} ]]; then
+        launcher_args="${PARAM_VARIABLES} ${launcher_args}"
     fi
     readonly MAIN_LAUNCHER_RUN_SH=${launcher_args}
 

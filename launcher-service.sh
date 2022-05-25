@@ -42,6 +42,10 @@ function main {
                     PARAM_APP_ENV="$2"
                     shift
                     ;;
+                "-var" | "--var-config")
+                    PARAM_VARIABLES="$2"
+                    shift
+                    ;;
                 "-h" | "--help" )
                     main::func::print_action_usage "${MAIN_ACTION}"
                     echo ""
@@ -82,6 +86,7 @@ main::func::print_action_usage() {
 
     #基础参数
     main::print_arg_usage '-n'    '--app-name'          "[Required]Set application name (e.g. -n web-sample)"
+    main::print_arg_usage '-var'  '--var-config'        "[Optional]Set system variables (e.g. -var 'APP_SRC_GROUP=DEMO')"
     #运行相关参数
     if [[ ${action_name} = "start" ]]; then
         main::print_arg_usage '-jo'   '--java-opts'     "[Optional]Set Java VM Options for your application (e.g. -jo '-Xmx4g -Xms4g')"
@@ -161,6 +166,10 @@ main::func::build-launcher-args(){
           fi
 
           readonly MAIN_LAUNCHER_RUN_PORT=${java_port}
+    fi
+    #添加系统参数
+    if [[ -n ${PARAM_VARIABLES} ]]; then
+        launcher_args="${PARAM_VARIABLES} ${launcher_args}"
     fi
 
     readonly MAIN_LAUNCHER_RUN_SH=${launcher_args}
