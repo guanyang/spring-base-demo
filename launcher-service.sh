@@ -107,10 +107,7 @@ main::func::action() {
 
 
     local launcher_args=${MAIN_LAUNCHER_RUN_SH}
-    if [[ ${action_name} = "start" ]]; then
-        launcher_args+=" -d"
-    fi
-    eval ${launcher_args}
+    eval "${launcher_args}"
 
     if [[ ${action_name} = "start" ]]; then
         local java_port=${MAIN_LAUNCHER_RUN_PORT}
@@ -138,6 +135,8 @@ main::func::build-launcher-args(){
     local launcher_args="${MAIN_APP_LAUNCHER_PATH} ${action_name} -n ${MAIN_APP_MODULE_NAME}"
 
     if [[ ${action_name} = "start" ]]; then
+          #设置后台运行
+          launcher_args+=" -d"
           #添加jvm启动参数
           local java_options="${PARAM_JAVA_OPTIONS:-${MAIN_CONS_DEFAULT_SERVICE_JAVA_OPTS}}"
           if [[ -n ${java_options} ]]; then
