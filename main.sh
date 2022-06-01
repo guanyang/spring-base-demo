@@ -226,10 +226,10 @@ main::check::check-launcher-sh(){
         launcher_path="/usr/local"
     fi
     local launcher_sh="${launcher_path}/bin/launcher.sh"
-    if [[ ! -f "${launcher_sh}" ]]; then
-        log_info "app launcher file \"${launcher_sh}\" not exists."
-        main::abort
-    fi
+#    if [[ ! -f "${launcher_sh}" ]]; then
+#        log_info "app launcher file \"${launcher_sh}\" not exists."
+#        main::abort
+#    fi
     readonly MAIN_APP_LAUNCHER_PATH=${launcher_sh}
 
     log_info "Launcher path: ${MAIN_APP_LAUNCHER_PATH}"
