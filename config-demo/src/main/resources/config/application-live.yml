@@ -6,3 +6,17 @@ server:
 
 conf:
   name: config-live-name1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        #参考：https://docs.spring.io/spring-boot/docs/2.6.3/reference/html/actuator.html#actuator.endpoints
+        include: "health,info,metrics"
+  endpoint:
+    health:
+      show-details: always
+  info:
+    java:
+      enabled: true
+
