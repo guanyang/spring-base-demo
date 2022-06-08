@@ -1,0 +1,31 @@
+server:
+  port: 8082
+  tomcat:
+    max-threads: 500
+    min-spare-threads: 50
+
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    lettuce:
+      pool:
+        max-active: 200
+        max-wait: 2000ms
+        max-idle: 50
+        min-idle: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        #参考：https://docs.spring.io/spring-boot/docs/2.6.3/reference/html/actuator.html#actuator.endpoints
+        include: "health,info,metrics"
+  endpoint:
+    health:
+      show-details: always
+  info:
+    java:
+      enabled: true
+
