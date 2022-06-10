@@ -5,6 +5,14 @@ server:
     min-spare-threads: 50
 
 spring:
+  jackson:
+    default-property-inclusion: non_null
+#    visibility:
+#      all: any
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
   redis:
     host: 127.0.0.1
     port: 6379
