@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/user")
-public class UserController {
+@RequestMapping("/api/user/v2")
+public class LocalUserController {
 
-    @Resource(name = "redisUserService")
+    @Resource(name = "localUserService")
     private UserService userService;
 
     @GetMapping("/get/{id}")

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.gy.demo.redisdemo.model.User;
 import org.gy.demo.redisdemo.model.User.Info;
 import org.gy.demo.redisdemo.service.UserService;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,10 +19,11 @@ import org.springframework.stereotype.Service;
  * @version 1.0.0
  */
 @Slf4j
-@Service("redisUserService")
-public class UserServiceImpl implements UserService {
+@Service("localUserService")
+@CacheConfig(cacheManager = "localCache")
+public class LocalUserServiceImpl implements UserService {
 
-    public static final String CACHE_NAME = "gy:test:user#300";
+    public static final String CACHE_NAME = "gy:test:localUser";
 
     @Override
     @Cacheable(cacheNames = CACHE_NAME, key = "#id", condition = "#a0>0", sync = true)
