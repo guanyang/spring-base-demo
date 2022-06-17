@@ -16,34 +16,26 @@ public class FalseSharingTests {
 
     @Test
     public void testWithPadding() throws Exception {
-        for (int i = 1; i < 10; i++) {
-            System.gc();
-            final long start = System.currentTimeMillis();
-            runTest(i, ValuePadding.class);
-            System.out.println("ValuePadding: Thread num " + i + " duration = " + (System.currentTimeMillis() - start));
-        }
+        execute(10, ValuePadding.class, "ValuePadding");
     }
 
     @Test
     public void testWithNoPadding() throws Exception {
-        for (int i = 1; i < 10; i++) {
-            System.gc();
-            final long start = System.currentTimeMillis();
-            runTest(i, ValueNoPadding.class);
-            System.out.println(
-                "ValueNoPadding: Thread num " + i + " duration = " + (System.currentTimeMillis() - start));
-        }
+        execute(10, ValueNoPadding.class, "ValueNoPadding");
     }
 
     //JVM 添加 -XX:-RestrictContended 参数后 @sun.misc.Contended 注解才有效
     @Test
     public void testWithContended() throws Exception {
-        for (int i = 1; i < 10; i++) {
+        execute(10, ValueContended.class, "ValueContended");
+    }
+
+    public static <T extends ValueHolder> void execute(int threadNum, Class<T> clazz, String desc) throws Exception {
+        for (int i = 1; i < threadNum; i++) {
             System.gc();
             final long start = System.currentTimeMillis();
-            runTest(i, ValueContended.class);
-            System.out.println(
-                "ValueContended: Thread num " + i + " duration = " + (System.currentTimeMillis() - start));
+            runTest(i, clazz);
+            System.out.println(desc + ": Thread num " + i + " duration = " + (System.currentTimeMillis() - start));
         }
     }
 
