@@ -1,0 +1,26 @@
+server:
+  port: 8080
+  tomcat:
+    max-threads: 500
+    min-spare-threads: 50
+
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  profiles:
+#    active: local
+  application:
+    name: disruptor-demo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        #参考：https://docs.spring.io/spring-boot/docs/2.6.3/reference/html/actuator.html#actuator.endpoints
+        include: "health,info,metrics"
+  endpoint:
+    health:
+      show-details: always
+  info:
+    java:
+      enabled: true

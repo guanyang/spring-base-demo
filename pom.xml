@@ -18,6 +18,7 @@
     <module>flink-demo</module>
     <module>femas-demo</module>
     <module>redis-demo</module>
+    <module>disruptor-demo</module>
   </modules>
   <properties>
     <java.source.version>1.8</java.source.version>
@@ -47,6 +48,12 @@
       </dependency>
 
       <dependency>
+        <groupId>com.lmax</groupId>
+        <artifactId>disruptor</artifactId>
+        <version>3.4.4</version>
+      </dependency>
+
+      <dependency>
         <groupId>com.alibaba.rocketmq</groupId>
         <artifactId>rocketmq-client</artifactId>
         <version>3.2.6</version>
@@ -73,7 +80,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>20.0</version>
+        <version>30.1-jre</version>
       </dependency>
       <dependency>
         <groupId>com.google.code.gson</groupId>

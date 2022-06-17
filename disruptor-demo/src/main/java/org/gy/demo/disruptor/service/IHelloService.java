@@ -1,4 +1,4 @@
-package org.gy.demo.configdemo.service;
+package org.gy.demo.disruptor.service;
 
 /**
  * 功能描述：
