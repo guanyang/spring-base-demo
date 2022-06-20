@@ -19,6 +19,7 @@
     <module>femas-demo</module>
     <module>redis-demo</module>
     <module>disruptor-demo</module>
+    <module>log-demo</module>
   </modules>
   <properties>
     <java.source.version>1.8</java.source.version>

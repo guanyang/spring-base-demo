@@ -1,0 +1,13 @@
+server:
+  port: 8080
+  tomcat:
+    max-threads: 500
+    min-spare-threads: 50
+
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  profiles:
+#    active: local
+  application:
+    name: log-demo
