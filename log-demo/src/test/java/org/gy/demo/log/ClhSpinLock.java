@@ -6,7 +6,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
 /**
- * 功能描述：
+ * 功能描述：CLH自旋公平锁，独占，不可重入
  *
  * @author gy
  * @version 1.0.0
@@ -51,15 +51,18 @@ public class ClhSpinLock implements Lock {
     public void lock() {
         final Node node = this.node.get();
         node.locked = true;
+        // 将tail设置为当前线程的节点，并获取到上一个节点，此操作为原子性操作
         Node pred = this.tail.getAndSet(node);
         this.prev.set(pred);
-        // 自旋
-        while (pred.locked);
+        // 在前驱节点的locked字段上自旋等待
+        while (pred.locked) {
+        }
     }
 
     @Override
     public void unlock() {
         final Node node = this.node.get();
+        // 将当前线程节点的locked属性设置为false，使下一个节点成功获取锁
         node.locked = false;
         this.node.set(this.prev.get());
     }
