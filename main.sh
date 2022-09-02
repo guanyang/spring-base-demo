@@ -214,7 +214,7 @@ main::action::docker-run(){
   local current_time_in_seconds=$(date '+%Y%m%d%H%M%S')
   local docker_name=${MAIN_APP_MODULE_NAME}-${current_time_in_seconds}
   #运行docker容器
-  docker run -d --name "${docker_name}" -p ${java_port}:${java_port} "${docker_image_name}" bash -c "${launcher_args}"
+  docker run -d --net host --name "${docker_name}" -p ${java_port}:${java_port} "${docker_image_name}" bash -c "${launcher_args}"
 
   log_info "docker-run action success. Visit 'http://127.0.0.1:${java_port}/hello' for more information."
 }
@@ -349,8 +349,8 @@ main::action::package(){
   #执行maven打包
   mvn -T 4 -B -pl "${MAIN_APP_MODULE_NAME}" -am clean package ${maven_args} -U -e
 
-  readonly MAIN_APP_MODULE_JAR_PATH=$(echo "${MAIN_APP_MODULE_PATH}"/*/"${MAIN_APP_MODULE_NAME}"-*.jar)
-  readonly MAIN_APP_MODULE_JAR_NAME=$(find "${MAIN_APP_MODULE_PATH}"/*/"${MAIN_APP_MODULE_NAME}"-*.jar | awk -F / '{print $NF}')
+  readonly MAIN_APP_MODULE_JAR_PATH=$(find "${MAIN_APP_MODULE_PATH}"/*/"${MAIN_APP_MODULE_NAME}"-*.jar | awk '!/-sources/')
+  readonly MAIN_APP_MODULE_JAR_NAME=$(find "${MAIN_APP_MODULE_PATH}"/*/"${MAIN_APP_MODULE_NAME}"-*.jar | awk '!/-sources/' | awk -F / '{print $NF}')
   readonly MAIN_APP_MODULE_JAR_VERSION=$(echo "${MAIN_APP_MODULE_JAR_NAME}" | awk -F "${MAIN_APP_MODULE_NAME}"'-' '{print $2}' | awk -F '.jar' '{print $1}')
 
   log_info "app module jar path: ${MAIN_APP_MODULE_JAR_PATH}"

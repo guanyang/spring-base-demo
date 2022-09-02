@@ -36,7 +36,7 @@
     <maven.shade.version>3.1.1</maven.shade.version>
     <spring-boot.version>2.6.3</spring-boot.version>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    <spring.base.version>1.0.1-SNAPSHOT</spring.base.version>
+    <spring.base.version>1.0.3-SNAPSHOT</spring.base.version>
     <jmh.version>1.35</jmh.version>
   </properties>
   <dependencyManagement>
@@ -47,6 +47,42 @@
         <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-core</artifactId>
+        <version>${spring.base.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-util</artifactId>
+        <version>${spring.base.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-csrf</artifactId>
+        <version>${spring.base.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-sign</artifactId>
+        <version>${spring.base.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-xss</artifactId>
+        <version>${spring.base.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-lock</artifactId>
+        <version>${spring.base.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-log</artifactId>
+        <version>${spring.base.version}</version>
       </dependency>
 
       <dependency>
