@@ -7,15 +7,23 @@
     <artifactId>spring-base-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>log-demo</artifactId>
+  <artifactId>vertx-springboot-demo</artifactId>
   <packaging>jar</packaging>
   <properties>
     <java.version>1.8</java.version>
     <spring-boot.version>2.6.3</spring-boot.version>
-    <mainClass>org.gy.demo.log.DemoApplication</mainClass>
+    <vertx.version>4.3.4</vertx.version>
+    <main.class>org.gy.demo.vertx.DemoApplication</main.class>
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-stack-depchain</artifactId>
+        <version>${vertx.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
@@ -28,49 +36,39 @@
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-logging</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>spring-boot-starter</artifactId>
     </dependency>
-    <!-- 引入log4j2依赖 -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-log4j2</artifactId>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-validation</artifactId>
     </dependency>
-    <!--log4j2异步AsyncLogger需要这个依赖,否则AsyncLogger日志打印不出来-->
     <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-service-proxy</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <classifier>processor</classifier>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-all</artifactId>
-      <version>4.1.77.Final</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.openjdk.jmh</groupId>
-      <artifactId>jmh-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.openjdk.jmh</groupId>
-      <artifactId>jmh-generator-annprocess</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>cn.hutool</groupId>
       <artifactId>hutool-all</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.dtflys.forest</groupId>
-      <artifactId>forest-spring-boot-starter</artifactId>
+      <groupId>org.gy.framework</groupId>
+      <artifactId>spring-base-core</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -110,7 +108,7 @@
               <apps>
                 <app>
                   <name>${artifactId}</name>
-                  <mainClass>${mainClass}</mainClass>
+                  <mainClass>${main.class}</mainClass>
                 </app>
               </apps>
             </configuration>

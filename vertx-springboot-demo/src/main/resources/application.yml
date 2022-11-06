@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: vertx-springboot-demo
+  profiles:
+    active: live

@@ -20,6 +20,8 @@
     <module>disruptor-demo</module>
     <module>log-demo</module>
     <module>ignite-demo</module>
+    <module>vertx-demo</module>
+    <module>vertx-springboot-demo</module>
   </modules>
   <properties>
     <java.source.version>1.8</java.source.version>
@@ -130,6 +132,11 @@
         <groupId>cn.hutool</groupId>
         <artifactId>hutool-all</artifactId>
         <version>5.3.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.dtflys.forest</groupId>
+        <artifactId>forest-spring-boot-starter</artifactId>
+        <version>1.5.26</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
