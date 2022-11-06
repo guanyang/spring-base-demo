@@ -18,6 +18,19 @@ import java.lang.annotation.Target;
 @Documented
 public @interface AsyncService {
 
+    /**
+     * beanName定义
+     */
+    String value() default "";
+
+    /**
+     * bean实现的接口定义
+     */
     Class<?> interfaceClass();
+
+    /**
+     * 服务注册地址
+     */
+    String address() default "";
 
 }

@@ -18,4 +18,14 @@ import java.lang.annotation.Target;
 @Documented
 public @interface AsyncReference {
 
+    /**
+     * 服务注册地址
+     */
+    String address() default "";
+
+    /**
+     * 超时时间，单位：毫秒
+     */
+    long timeout() default 0;
+
 }

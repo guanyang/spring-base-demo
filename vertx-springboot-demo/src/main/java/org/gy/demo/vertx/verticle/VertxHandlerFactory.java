@@ -2,6 +2,7 @@ package org.gy.demo.vertx.verticle;
 
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -14,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,7 +78,8 @@ public class VertxHandlerFactory {
         T asInstance = SpringContextUtil.getBean(interfaceClass);
         Assert.notNull(asInstance, () -> interfaceClass.getSimpleName() + " instance is null in ApplicationContext");
 
-        String address = buildAsyncServiceAddress(interfaceClass);
+        String address = Optional.ofNullable(asyncHandler.address()).filter(StrUtil::isNotBlank)
+            .orElseGet(() -> buildAsyncServiceAddress(interfaceClass));
         binder.setAddress(address).register(interfaceClass, asInstance);
     }
 
@@ -136,7 +139,7 @@ public class VertxHandlerFactory {
             .sorted(ROUTE_MAPPING_COMPARATOR).collect(Collectors.toList());
     }
 
-    private static Set<Class<?>> scanAsyncService(String asyncServicePackageName) {
+    public static Set<Class<?>> scanAsyncService(String asyncServicePackageName) {
         return scanPackageByAnnotation(asyncServicePackageName, AsyncService.class);
     }
 
