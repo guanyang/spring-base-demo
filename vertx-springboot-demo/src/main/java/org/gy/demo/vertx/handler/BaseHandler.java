@@ -8,6 +8,7 @@ import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.validation.BadRequestException;
 import io.vertx.serviceproxy.ServiceException;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,6 +23,8 @@ import org.gy.framework.core.exception.CommonException;
  * @date 2022/11/5 22:43
  */
 public abstract class BaseHandler {
+
+    public static final String SERVER_ERROR = "Internal Server Error";
 
     protected <T, R> void invoke(BiConsumer<T, Handler<AsyncResult<R>>> consumer, RoutingContext ctx,
         Function<RoutingContext, T> reqFunc) {
@@ -50,7 +53,8 @@ public abstract class BaseHandler {
             ServiceException e = (ServiceException) cause;
             ctx.json(Response.asError(e.failureCode(), e.getMessage()));
         } else {
-            ctx.json(Response.asError(HTTP_INTERNAL_ERROR, cause.getMessage()));
+            String message = Optional.ofNullable(cause).map(Throwable::getMessage).orElse(SERVER_ERROR);
+            ctx.json(Response.asError(HTTP_INTERNAL_ERROR, message));
         }
     }
 

@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -129,18 +131,16 @@ public class VertxHandlerFactory {
      */
     private static void registerMethodRouteHandler(Router router, RouteMapping classMapping, RouteMapping methodMapping,
         Method method, Object handlerInstance) {
-        String[] paths = methodMapping.value();
-        if (ObjectUtils.isEmpty(paths)) {
+        Handler<RoutingContext> methodHandler = (Handler<RoutingContext>) ReflectUtil.invoke(handlerInstance, method);
+        if (methodHandler == null) {
             return;
         }
         RouteMethod[] routeMethods = methodMapping.method();
         if (ObjectUtils.isEmpty(routeMethods)) {
             routeMethods = classMapping.method();
         }
-        Handler<RoutingContext> methodHandler = (Handler<RoutingContext>) ReflectUtil.invoke(handlerInstance, method);
-        if (methodHandler == null) {
-            return;
-        }
+        List<HttpMethod> httpMethods = Stream.of(routeMethods).map(RouteMethod::nameOf).collect(Collectors.toList());
+        String[] paths = methodMapping.value();
         String[] rootPaths = classMapping.value();
         List<String> routeUrls = Stream.of(paths).map(p -> {
             if (ObjectUtils.isEmpty(rootPaths)) {
@@ -148,17 +148,38 @@ public class VertxHandlerFactory {
             }
             return Stream.of(rootPaths).map(r -> pathJoin(r, p)).collect(Collectors.toList());
         }).flatMap(List::stream).collect(Collectors.toList());
-        List<HttpMethod> httpMethods = Stream.of(routeMethods).map(RouteMethod::nameOf).collect(Collectors.toList());
-        registerRouteHandler(router, methodHandler, routeUrls, httpMethods);
+        //是否开启正则路由
+        boolean regex = methodMapping.regex();
+        registerRouteHandler(router, methodHandler, routeUrls, httpMethods, regex);
     }
 
     private static void registerRouteHandler(Router router, Handler<RoutingContext> methodHandler,
-        List<String> routeUrls, List<HttpMethod> httpMethods) {
+        List<String> routeUrls, List<HttpMethod> httpMethods, boolean regex) {
+        if (ObjectUtils.isEmpty(routeUrls)) {
+            //注册全局handler
+            router.route().handler(methodHandler);
+            return;
+        }
+        //注册指定路由handler
         routeUrls.forEach(path -> {
-            httpMethods.forEach(m -> {
-                router.route(m, path).handler(methodHandler);
-            });
+            if (ObjectUtils.isEmpty(httpMethods)) {
+                routeWrapper(router, path, null, regex).handler(methodHandler);
+            } else {
+                httpMethods.forEach(m -> {
+                    routeWrapper(router, path, m, regex).handler(methodHandler);
+                });
+            }
         });
+    }
+
+    private static Route routeWrapper(Router router, String path, HttpMethod method, boolean regex) {
+        Supplier<Route> routerSupplier;
+        if (method == null) {
+            routerSupplier = regex ? () -> router.routeWithRegex(path) : () -> router.route(path);
+        } else {
+            routerSupplier = regex ? () -> router.routeWithRegex(method, path) : () -> router.route(method, path);
+        }
+        return routerSupplier.get();
     }
 
     private static List<Method> getRouteMethod(Class<?> handler) {

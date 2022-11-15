@@ -38,6 +38,11 @@ public @interface RouteMapping {
     int order() default 0;
 
     /**
+     * 是否开启正则路由，true时针对value进行正则路由匹配
+     */
+    boolean regex() default false;
+
+    /**
      * 异常路由定义
      */
     boolean exception() default false;
