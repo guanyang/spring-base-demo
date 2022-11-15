@@ -11,6 +11,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.serviceproxy.ServiceBinder;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -88,40 +89,67 @@ public class VertxHandlerFactory {
     }
 
     private static void registerRouteHandler(Router router, Class<?> handler) {
-        RouteMapping classRoute = AnnotationUtils.findAnnotation(handler, RouteMapping.class);
-        Assert.notNull(classRoute, () -> "RouteMapping Annotation is required!");
+        RouteMapping classMapping = AnnotationUtils.findAnnotation(handler, RouteMapping.class);
+        Assert.notNull(classMapping, () -> "RouteMapping Annotation is required!");
 
         Object handlerInstance = SpringContextUtil.getBean(handler);
         Assert.notNull(handlerInstance, () -> handler.getSimpleName() + " instance is null in ApplicationContext");
 
-        String[] rootPaths = classRoute.value();
-        RouteMethod[] rootMethods = classRoute.method();
         List<Method> methods = getRouteMethod(handler);
         for (Method method : methods) {
-            RouteMapping mapping = method.getAnnotation(RouteMapping.class);
-            String[] paths = mapping.value();
-            if (ObjectUtils.isEmpty(paths)) {
-                continue;
+            RouteMapping methodMapping = method.getAnnotation(RouteMapping.class);
+            if (methodMapping.exception()) {
+                registerErrorRouteHandler(router, methodMapping, method, handlerInstance);
+            } else {
+                registerMethodRouteHandler(router, classMapping, methodMapping, method, handlerInstance);
             }
-            RouteMethod[] routeMethods = mapping.method();
-            if (ObjectUtils.isEmpty(routeMethods)) {
-                routeMethods = rootMethods;
-            }
-            Handler<RoutingContext> methodHandler = (Handler<RoutingContext>) ReflectUtil.invoke(handlerInstance,
-                method);
-            if (methodHandler == null) {
-                continue;
-            }
-            List<String> routeUrls = Stream.of(paths).map(p -> {
-                if (ObjectUtils.isEmpty(rootPaths)) {
-                    return Collections.singletonList(pathJoin(p));
-                }
-                return Stream.of(rootPaths).map(r -> pathJoin(r, p)).collect(Collectors.toList());
-            }).flatMap(List::stream).collect(Collectors.toList());
-            List<HttpMethod> httpMethods = Stream.of(routeMethods).map(RouteMethod::nameOf)
-                .collect(Collectors.toList());
-            registerRouteHandler(router, methodHandler, routeUrls, httpMethods);
         }
+    }
+
+    /**
+     * 注册异常处理路由
+     */
+    private static void registerErrorRouteHandler(Router router, RouteMapping methodMapping, Method method,
+        Object handlerInstance) {
+        int[] statusCodes = methodMapping.statusCode();
+        if (ObjectUtils.isEmpty(statusCodes)) {
+            return;
+        }
+        Handler<RoutingContext> methodHandler = (Handler<RoutingContext>) ReflectUtil.invoke(handlerInstance, method);
+        if (methodHandler == null) {
+            return;
+        }
+        Arrays.stream(statusCodes).forEach(code -> {
+            router.errorHandler(code, methodHandler);
+        });
+    }
+
+    /**
+     * 注册方法请求路由
+     */
+    private static void registerMethodRouteHandler(Router router, RouteMapping classMapping, RouteMapping methodMapping,
+        Method method, Object handlerInstance) {
+        String[] paths = methodMapping.value();
+        if (ObjectUtils.isEmpty(paths)) {
+            return;
+        }
+        RouteMethod[] routeMethods = methodMapping.method();
+        if (ObjectUtils.isEmpty(routeMethods)) {
+            routeMethods = classMapping.method();
+        }
+        Handler<RoutingContext> methodHandler = (Handler<RoutingContext>) ReflectUtil.invoke(handlerInstance, method);
+        if (methodHandler == null) {
+            return;
+        }
+        String[] rootPaths = classMapping.value();
+        List<String> routeUrls = Stream.of(paths).map(p -> {
+            if (ObjectUtils.isEmpty(rootPaths)) {
+                return Collections.singletonList(pathJoin(p));
+            }
+            return Stream.of(rootPaths).map(r -> pathJoin(r, p)).collect(Collectors.toList());
+        }).flatMap(List::stream).collect(Collectors.toList());
+        List<HttpMethod> httpMethods = Stream.of(routeMethods).map(RouteMethod::nameOf).collect(Collectors.toList());
+        registerRouteHandler(router, methodHandler, routeUrls, httpMethods);
     }
 
     private static void registerRouteHandler(Router router, Handler<RoutingContext> methodHandler,

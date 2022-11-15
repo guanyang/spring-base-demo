@@ -38,6 +38,16 @@ public @interface RouteMapping {
     int order() default 0;
 
     /**
+     * 异常路由定义
+     */
+    boolean exception() default false;
+
+    /**
+     * 状态码，仅exception=true时有效，状态码相同，异常路由将被覆盖
+     */
+    int[] statusCode() default 400;
+
+    /**
      * 接口描述
      */
     String desc() default "";
