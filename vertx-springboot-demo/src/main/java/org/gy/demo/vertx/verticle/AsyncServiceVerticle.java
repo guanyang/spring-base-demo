@@ -6,9 +6,13 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 /**
  * 异步服务注册
@@ -22,10 +26,23 @@ import org.springframework.stereotype.Component;
 @Scope(SCOPE_PROTOTYPE)
 public class AsyncServiceVerticle extends AbstractVerticle {
 
+    private List<MessageConsumer<JsonObject>> messageConsumers;
+
     @Override
     public void start(Promise<Void> startPromise) throws Exception {
         //注册异步服务
-        registerAsyncService(vertx, DEFAULT_PACKAGE);
+        messageConsumers = registerAsyncService(vertx, DEFAULT_PACKAGE);
         log.info("registerAsyncService success,package={}", DEFAULT_PACKAGE);
+        startPromise.complete();
+    }
+
+    @Override
+    public void stop(Promise<Void> stopPromise) throws Exception {
+        if (ObjectUtils.isEmpty(messageConsumers)) {
+            stopPromise.complete();
+            return;
+        }
+        messageConsumers.forEach(s -> s.unregister());
+        stopPromise.complete();
     }
 }

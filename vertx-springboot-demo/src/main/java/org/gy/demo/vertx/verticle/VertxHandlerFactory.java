@@ -7,8 +7,9 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -69,12 +70,12 @@ public class VertxHandlerFactory {
         });
     }
 
-    public static void registerAsyncService(Vertx vertx, String asyncServicePackageName) {
+    public static List<MessageConsumer<JsonObject>> registerAsyncService(Vertx vertx, String asyncServicePackageName) {
         Set<Class<?>> asyncServiceClazzs = scanAsyncService(asyncServicePackageName);
-        asyncServiceClazzs.forEach(serviceClazz -> registerAsyncService(vertx, serviceClazz));
+        return asyncServiceClazzs.stream().map(s -> registerAsyncService(vertx, s)).collect(Collectors.toList());
     }
 
-    private static <T> void registerAsyncService(Vertx vertx, Class<?> serviceClazz) {
+    private static <T> MessageConsumer<JsonObject> registerAsyncService(Vertx vertx, Class<?> serviceClazz) {
         AsyncService asyncHandler = AnnotationUtils.findAnnotation(serviceClazz, AsyncService.class);
         Assert.notNull(asyncHandler, () -> "AsyncServiceHandler Annotation is required!");
 
@@ -89,7 +90,7 @@ public class VertxHandlerFactory {
         long timeout = Optional.ofNullable(asyncHandler.timeout()).filter(i -> i > 0)
             .map(TimeUnit.MILLISECONDS::toSeconds).orElse(DEFAULT_CONNECTION_TIMEOUT);
         ServiceBinder binder = new ServiceBinder(vertx).setTimeoutSeconds(timeout);
-        binder.setAddress(address).register(interfaceClass, asInstance);
+        return binder.setAddress(address).register(interfaceClass, asInstance);
     }
 
     public static <T> String buildAsyncServiceAddress(Class<T> interfaceClass) {

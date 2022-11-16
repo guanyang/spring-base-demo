@@ -10,6 +10,7 @@ import io.vertx.core.spi.VerticleFactory;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.gy.demo.vertx.verticle.AsyncServiceVerticle;
 import org.gy.demo.vertx.verticle.MainVerticle;
 
@@ -20,6 +21,7 @@ import org.gy.demo.vertx.verticle.MainVerticle;
  * @version 1.0.0
  * @date 2022/11/4 10:27
  */
+@Slf4j
 @Getter
 @AllArgsConstructor
 public enum VerticleEnum {
@@ -36,7 +38,14 @@ public enum VerticleEnum {
         Stream.of(values()).forEach(item -> {
             // Scale the verticles on cores: create 4 instances during the deployment
             // https://vertx.io/docs/vertx-core/java/#_specifying_number_of_verticle_instances
-            vertx.deployVerticle(verticleFactory.prefix() + SPLIT + item.verticleClazz.getName(), item.options);
+            vertx.deployVerticle(verticleFactory.prefix() + SPLIT + item.verticleClazz.getName(), item.options, ar -> {
+                if (ar.succeeded()) {
+                    log.info("Verticle deployment success,name={},deploymentID={}", item.verticleClazz.getSimpleName(),
+                        ar.result());
+                } else {
+                    log.error("Verticle deployment failed,name={}", item.verticleClazz.getSimpleName());
+                }
+            });
         });
     }
 
