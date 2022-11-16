@@ -30,25 +30,23 @@ import org.springframework.stereotype.Component;
 @RouteMapping(order = Integer.MAX_VALUE)
 public class GlobalConfigHandler extends BaseHandler {
 
-    @RouteMapping
+    @RouteMapping(value = "/api/v1/*", order = Integer.MAX_VALUE)
     public Handler<RoutingContext> bodyHandler() {
         return BodyHandler.create();
     }
 
-    @RouteMapping(value = "/static/*")
+    @RouteMapping(value = "/static/*", order = Integer.MAX_VALUE)
     public Handler<RoutingContext> staticHandler() {
         return StaticHandler.create();
     }
 
-    @RouteMapping(value = "/api/v1/*")
+    @RouteMapping(value = "/api/v1/*", order = Integer.MAX_VALUE - 1)
     public Handler<RoutingContext> validationHandler() {
         SchemaParser parser = SchemaParser.createDraft7SchemaParser(
             SchemaRouter.create(VertxUtil.getVertxInstance(), new SchemaRouterOptions()));
         ValidationHandler validationHandler = ValidationHandler.builder(parser)
-            .queryParameter(param("parameterName", intSchema())).body(formUrlEncoded(objectSchema()
-                    .property("r", intSchema())
-                    .property("g", intSchema())
-                    .property("b", intSchema())))
+            .queryParameter(param("parameterName", intSchema())).body(formUrlEncoded(
+                objectSchema().property("r", intSchema()).property("g", intSchema()).property("b", intSchema())))
             .build();
         return validationHandler;
     }

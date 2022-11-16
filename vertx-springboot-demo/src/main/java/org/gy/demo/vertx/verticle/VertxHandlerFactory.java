@@ -1,10 +1,13 @@
 package org.gy.demo.vertx.verticle;
 
+import static io.vertx.serviceproxy.ServiceBinder.DEFAULT_CONNECTION_TIMEOUT;
+
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -67,11 +71,10 @@ public class VertxHandlerFactory {
 
     public static void registerAsyncService(Vertx vertx, String asyncServicePackageName) {
         Set<Class<?>> asyncServiceClazzs = scanAsyncService(asyncServicePackageName);
-        ServiceBinder binder = new ServiceBinder(vertx);
-        asyncServiceClazzs.forEach(serviceClazz -> registerAsyncService(binder, serviceClazz));
+        asyncServiceClazzs.forEach(serviceClazz -> registerAsyncService(vertx, serviceClazz));
     }
 
-    private static <T> void registerAsyncService(ServiceBinder binder, Class<?> serviceClazz) {
+    private static <T> void registerAsyncService(Vertx vertx, Class<?> serviceClazz) {
         AsyncService asyncHandler = AnnotationUtils.findAnnotation(serviceClazz, AsyncService.class);
         Assert.notNull(asyncHandler, () -> "AsyncServiceHandler Annotation is required!");
 
@@ -83,6 +86,9 @@ public class VertxHandlerFactory {
 
         String address = Optional.ofNullable(asyncHandler.address()).filter(StrUtil::isNotBlank)
             .orElseGet(() -> buildAsyncServiceAddress(interfaceClass));
+        long timeout = Optional.ofNullable(asyncHandler.timeout()).filter(i -> i > 0)
+            .map(TimeUnit.MILLISECONDS::toSeconds).orElse(DEFAULT_CONNECTION_TIMEOUT);
+        ServiceBinder binder = new ServiceBinder(vertx).setTimeoutSeconds(timeout);
         binder.setAddress(address).register(interfaceClass, asInstance);
     }
 

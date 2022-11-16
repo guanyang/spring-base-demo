@@ -1,6 +1,6 @@
 package org.gy.demo.vertx.verticle.support;
 
-import static org.gy.demo.vertx.verticle.support.VerticleConstants.CORE_NUM;
+import static org.gy.demo.vertx.verticle.support.VerticleConstants.DEFAULT_OPTIONS;
 import static org.gy.demo.vertx.verticle.support.VerticleConstants.SPLIT;
 
 import io.vertx.core.DeploymentOptions;
@@ -8,6 +8,8 @@ import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.spi.VerticleFactory;
 import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.gy.demo.vertx.verticle.AsyncServiceVerticle;
 import org.gy.demo.vertx.verticle.MainVerticle;
 
@@ -18,36 +20,24 @@ import org.gy.demo.vertx.verticle.MainVerticle;
  * @version 1.0.0
  * @date 2022/11/4 10:27
  */
+@Getter
+@AllArgsConstructor
 public enum VerticleEnum {
 
-    MAIN(CORE_NUM, MainVerticle.class),
+    MAIN(MainVerticle.class, DEFAULT_OPTIONS),
 
-    ASYNC(CORE_NUM, AsyncServiceVerticle.class);
-
-    private final int instances;
+    ASYNC(AsyncServiceVerticle.class, new DeploymentOptions(DEFAULT_OPTIONS).setWorker(true));
 
     private final Class<? extends Verticle> verticleClazz;
 
-    VerticleEnum(int instances, Class<? extends Verticle> verticleClazz) {
-        this.instances = instances;
-        this.verticleClazz = verticleClazz;
-    }
+    private final DeploymentOptions options;
 
     public static void deployVerticle(Vertx vertx, VerticleFactory verticleFactory) {
         Stream.of(values()).forEach(item -> {
             // Scale the verticles on cores: create 4 instances during the deployment
             // https://vertx.io/docs/vertx-core/java/#_specifying_number_of_verticle_instances
-            DeploymentOptions options = new DeploymentOptions().setInstances(item.getInstances());
-            vertx.deployVerticle(verticleFactory.prefix() + SPLIT + item.getVerticleClazz().getName(), options);
+            vertx.deployVerticle(verticleFactory.prefix() + SPLIT + item.verticleClazz.getName(), item.options);
         });
-    }
-
-    public int getInstances() {
-        return instances;
-    }
-
-    public Class<? extends Verticle> getVerticleClazz() {
-        return verticleClazz;
     }
 
 }

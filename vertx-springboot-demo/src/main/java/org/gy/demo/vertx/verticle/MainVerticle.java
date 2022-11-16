@@ -8,6 +8,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.ext.web.Router;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -16,13 +17,16 @@ import org.springframework.stereotype.Component;
 @Scope(SCOPE_PROTOTYPE)
 public class MainVerticle extends AbstractVerticle {
 
+    @Value("${server.port}")
+    private int serverPort;
+
     @Override
     public void start(Promise<Void> startPromise) throws Exception {
         //路由规则定义
         Router router = Router.router(vertx);
         registerRouter(router, DEFAULT_PACKAGE);
         //创建http服务，监听端口
-        vertx.createHttpServer().requestHandler(router).listen(8888).onSuccess(server -> {
+        vertx.createHttpServer().requestHandler(router).listen(serverPort).onSuccess(server -> {
             log.info("HTTP server started on port {}", server.actualPort());
             startPromise.complete();
         }).onFailure(e -> {

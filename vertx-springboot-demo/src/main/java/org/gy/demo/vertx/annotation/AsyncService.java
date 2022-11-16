@@ -33,4 +33,9 @@ public @interface AsyncService {
      */
     String address() default "";
 
+    /**
+     * 超时时间，大于0生效，单位：毫秒
+     */
+    long timeout() default 0;
+
 }

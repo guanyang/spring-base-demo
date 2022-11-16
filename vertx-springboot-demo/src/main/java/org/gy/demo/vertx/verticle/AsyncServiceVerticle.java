@@ -26,5 +26,6 @@ public class AsyncServiceVerticle extends AbstractVerticle {
     public void start(Promise<Void> startPromise) throws Exception {
         //注册异步服务
         registerAsyncService(vertx, DEFAULT_PACKAGE);
+        log.info("registerAsyncService success,package={}", DEFAULT_PACKAGE);
     }
 }
