@@ -42,7 +42,7 @@ public class AsyncServiceVerticle extends AbstractVerticle {
             stopPromise.complete();
             return;
         }
-        messageConsumers.forEach(s -> s.unregister());
+        messageConsumers.forEach(MessageConsumer::unregister);
         stopPromise.complete();
     }
 }

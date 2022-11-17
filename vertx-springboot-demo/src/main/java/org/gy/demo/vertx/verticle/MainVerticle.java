@@ -42,7 +42,7 @@ public class MainVerticle extends AbstractVerticle {
 
     @Override
     public void stop(Promise<Void> stopPromise) throws Exception {
-        Optional.ofNullable(server).ifPresent(s -> s.close());
+        Optional.ofNullable(server).ifPresent(HttpServer::close);
         stopPromise.complete();
     }
 }
