@@ -3,7 +3,9 @@ package org.gy.demo.dubbo.consumer.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.gy.demo.dubbo.api.dto.TestRequest;
+import org.gy.demo.dubbo.api.dto.TestResponse;
 import org.gy.demo.dubbo.api.service.TestService;
+import org.gy.framework.core.dto.Response;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +26,7 @@ public class TestController {
 
     @GetMapping("/hello")
     public Object hello(TestRequest request) {
-        return testService.hello(request);
+        Response<TestResponse> hello = testService.hello(request);
+        return hello;
     }
 }

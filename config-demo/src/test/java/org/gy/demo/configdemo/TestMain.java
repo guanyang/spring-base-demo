@@ -1,12 +1,10 @@
 package org.gy.demo.configdemo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.stream.LongStream;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.demo.configdemo.service.IHelloService;
 import org.junit.jupiter.api.Test;
@@ -22,6 +20,10 @@ import org.springframework.boot.util.LambdaSafe;
 @Slf4j
 public class TestMain {
 
+    public static long rangedSum(long n) {
+        return LongStream.rangeClosed(1, n).reduce(0L, Long::sum);
+    }
+
     @Test
     public void test() {
         IHelloService service = new MyCustomHelloService();
@@ -34,7 +36,7 @@ public class TestMain {
         list.add(consumer2);
         list.add(consumer3);
 
-        LambdaSafe.callbacks(Consumer.class, list, service, null).invoke(c -> c.accept(service));
+        LambdaSafe.callbacks(Consumer.class, list, service).invoke(c -> c.accept(service));
     }
 
     @Test
@@ -45,11 +47,11 @@ public class TestMain {
         List<BiFunction<IHelloService, String, String>> list = new ArrayList<>();
         list.add(function);
 
-        LambdaSafe.callbacks(BiFunction.class, list, service, null).invokeAnd(c -> c.apply(service, "test"))
+        LambdaSafe.callbacks(BiFunction.class, list, service).invokeAnd(c -> c.apply(service, "test"))
             .forEach(System.out::println);
     }
 
-    public class MyCustomHelloService implements IHelloService {
+    public static class MyCustomHelloService implements IHelloService {
 
         @Override
         public void hello() {

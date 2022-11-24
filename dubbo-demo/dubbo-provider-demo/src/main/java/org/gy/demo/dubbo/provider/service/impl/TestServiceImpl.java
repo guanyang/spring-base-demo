@@ -5,6 +5,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.gy.demo.dubbo.api.dto.TestRequest;
 import org.gy.demo.dubbo.api.dto.TestResponse;
 import org.gy.demo.dubbo.api.service.TestService;
+import org.gy.framework.core.dto.Response;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,15 +16,16 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@DubboService(version = "1.0.0", timeout = 3000)
+@DubboService(version = "1.0.0", timeout = 3000, validation = "true", filter = {"customValidationFilter",
+    "-validation"})
 public class TestServiceImpl implements TestService {
 
     @Override
-    public TestResponse hello(TestRequest request) {
+    public Response<TestResponse> hello(TestRequest request) {
         TestResponse response = new TestResponse();
         response.setName(request.getName());
         response.setAge(request.getAge());
         response.setTime(System.currentTimeMillis());
-        return response;
+        return Response.asSuccess(response);
     }
 }

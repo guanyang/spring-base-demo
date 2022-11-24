@@ -1,0 +1,1 @@
+customValidationFilter=org.gy.demo.dubbo.provider.filter.CustomValidationFilter

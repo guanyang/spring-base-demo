@@ -1,0 +1,1 @@
+customValidation=org.gy.demo.dubbo.consumer.filter.CustomValidation

@@ -2,6 +2,7 @@ package org.gy.demo.dubbo.api.service;
 
 import org.gy.demo.dubbo.api.dto.TestRequest;
 import org.gy.demo.dubbo.api.dto.TestResponse;
+import org.gy.framework.core.dto.Response;
 
 /**
  * 功能描述：
@@ -11,6 +12,6 @@ import org.gy.demo.dubbo.api.dto.TestResponse;
  */
 public interface TestService {
 
-    TestResponse hello(TestRequest request);
+    Response<TestResponse> hello(TestRequest request);
 
 }
