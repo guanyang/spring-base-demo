@@ -8,25 +8,24 @@ spring:
     database: 1
 
 rocketmq:
-  producer:
-    isOnOff: on
-    groupName: ${spring.application.name}
-    #mq\u7684nameserver\u5730\u5740
-    namesrvAddr: 127.0.0.1:9876
-    #\u6D88\u606F\u6700\u5927\u957F\u5EA6 \u9ED8\u8BA41024*4(4M)
-    maxMessageSize: 4096
-    #\u53D1\u9001\u6D88\u606F\u8D85\u65F6\u65F6\u95F4,\u9ED8\u8BA43000
-    sendMsgTimeout: 3000
-    #\u53D1\u9001\u6D88\u606F\u5931\u8D25\u91CD\u8BD5\u6B21\u6570\uFF0C\u9ED8\u8BA42
-    retryTimesWhenSendFailed: 2
-  consumer:
-    isOnOff: on
-    groupName: ${spring.application.name}
-    #mq\u7684nameserver\u5730\u5740
-    namesrvAddr: 127.0.0.1:9876
-    #\u8BE5\u6D88\u8D39\u8005\u8BA2\u9605\u7684\u4E3B\u9898\u548Ctags("*"\u53F7\u8868\u793A\u8BA2\u9605\u8BE5\u4E3B\u9898\u4E0B\u6240\u6709\u7684tags),\u683C\u5F0F\uFF1Atopic~tag1||tag2||tag3;topic2~*;
-    topics: DemoTopic~*;
-    consumeThreadMin: 1
-    consumeThreadMax: 1
-    #\u8BBE\u7F6E\u4E00\u6B21\u6D88\u8D39\u6D88\u606F\u7684\u6761\u6570\uFF0C\u9ED8\u8BA4\u4E3A1\u6761
-    consumeMessageBatchMaxSize: 1
+  demo:        #配置标识，自定义即可
+    nameServer: 127.0.0.1:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+    topic: DemoTopic    #【必须】消息topic
+    producer:     #producer配置
+      groupName: DemoProducerGroup    #【producer存在时必须】组名称
+      instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
+      sendMessageTimeout: 3000    #消息发送超时时间，单位：毫秒，默认：3000
+      compressMessageBodyThreshold: 4096    #消息压缩阈值，超过则进行压缩，默认：4KB
+      retryTimesWhenSendFailed: 2   #消息同步发送失败重试次数，默认：2
+      retryTimesWhenSendAsyncFailed: 2    #消息异步发送失败重试次数，默认：2
+      retryNextServer: false    #消息发送失败是否重试另一个broker，默认：false
+      maxMessageSize: 4194304   #最大消息体大小，默认：4MB
+    consumer:        #consumer配置
+      groupName: DemoConsumerGroup    #【consumer存在时必须】组名称
+      instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
+      messageModel: CLUSTERING  #消费模式，CLUSTERING集群，BROADCASTING广播，默认：CLUSTERING
+      selectorExpression: 'tag1||tag2'   #消费tag表达式定义，*匹配所有，格式：tag1||tag2，默认：*
+      consumeMessageBatchMaxSize: 1   #批量消费消息数量，默认：1
+      consumeThreadMin: 20    #消费线程最小值定义，默认：20
+      consumeThreadMax: 20    #消费线程最大值定义，默认：20
+      consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET

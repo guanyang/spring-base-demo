@@ -2,8 +2,16 @@ package org.gy.demo.mq.mqdemo.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.SendStatus;
+import org.apache.rocketmq.common.message.Message;
+import org.gy.demo.mq.mqdemo.mq.ExtRocketMQTemplate;
+import org.gy.demo.mq.mqdemo.mq.RocketMqProducer;
+import org.gy.framework.core.dto.Response;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +35,51 @@ public class TestController {
         result.put("age", req.getAge());
         result.put("id", id);
         return result;
+    }
+
+    @Resource(name = "demoProducer")
+    private RocketMqProducer demoProducer;
+
+    @GetMapping("/sendMsg")
+    public Response sendMsg(String msg, String tag) {
+        Message mQMsg = new Message(demoProducer.getRocketMQProperties().getTopic(), tag, msg.getBytes());
+        try {
+            SendResult sendResult = demoProducer.getProducer().send(mQMsg);
+            SendStatus sendStatus = sendResult.getSendStatus();
+            log.info("发送消息：{}", sendResult);
+            if (SendStatus.SEND_OK.equals(sendStatus)) {
+                return Response.asSuccess(sendResult);
+            } else {
+                return Response.asError(1001, sendStatus.name());
+            }
+        } catch (Exception e) {
+            log.error("sendMsg exception:msg={},tag={}.", msg, tag, e);
+            return Response.asError(1002, "消息发送失败");
+        }
+    }
+
+    @Value("${rocketmq.demo.topic}")
+    private String topic;
+
+    @Resource(name = "extRocketMQTemplate")
+    private ExtRocketMQTemplate extRocketMQTemplate;
+
+    @GetMapping("/sendMsg2")
+    public Response sendMsg2(String msg, String tag) {
+        try {
+            //一般是放topic，也可以放topic:tag
+            SendResult sendResult = extRocketMQTemplate.syncSend(topic + ":" + tag, msg);
+            SendStatus sendStatus = sendResult.getSendStatus();
+            log.info("发送消息：{}", sendResult);
+            if (SendStatus.SEND_OK.equals(sendStatus)) {
+                return Response.asSuccess(sendResult);
+            } else {
+                return Response.asError(1001, sendStatus.name());
+            }
+        } catch (Exception e) {
+            log.error("sendMsg exception:msg={},tag={}.", msg, tag, e);
+            return Response.asError(1002, "消息发送失败");
+        }
     }
 
 
