@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.client.api.Producer;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.Message;
@@ -78,6 +80,21 @@ public class TestController {
             }
         } catch (Exception e) {
             log.error("sendMsg exception:msg={},tag={}.", msg, tag, e);
+            return Response.asError(1002, "消息发送失败");
+        }
+    }
+
+    @Resource(name = "demoPulsarProducer")
+    private Producer<String> demoPulsarProducer;
+
+    @GetMapping("/sendMsg3")
+    public Response sendMsg3(String msg) {
+        try {
+            MessageId sendResult = demoPulsarProducer.send(msg);
+            log.info("发送消息：{}", sendResult);
+            return Response.asSuccess(sendResult);
+        } catch (Exception e) {
+            log.error("sendMsg exception:msg={}.", msg, e);
             return Response.asError(1002, "消息发送失败");
         }
     }

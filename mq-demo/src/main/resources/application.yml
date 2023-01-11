@@ -1,3 +1,9 @@
+server:
+  port: 8083
+  tomcat:
+    max-threads: 100
+    min-spare-threads: 10
+
 spring:
   application:
     name: rocketmq-demo
@@ -29,3 +35,8 @@ rocketmq:
       consumeThreadMin: 20    #消费线程最小值定义，默认：20
       consumeThreadMax: 20    #消费线程最大值定义，默认：20
       consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET
+
+pulsar:
+  serverUrl: pulsar://localhost:6650
+  topic: DemoTopic
+  subscriptionName: DemoSubscription
