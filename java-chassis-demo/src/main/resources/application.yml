@@ -1,0 +1,7 @@
+servicecomb:
+  service:
+    application: java-chassis-demo # 应用名
+    name: java-chassis-demo # 微服务名称
+    version: 0.0.1 # 服务版本号
+  rest:
+    address: 0.0.0.0:8080
