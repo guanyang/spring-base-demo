@@ -85,6 +85,63 @@
     </dependency>
 
     <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.9.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.houbb</groupId>
+      <artifactId>bean-mapping-core</artifactId>
+      <version>0.2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.houbb</groupId>
+      <artifactId>bean-mapping-asm</artifactId>
+      <version>0.2.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>1.4.2.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct-processor</artifactId>
+      <version>1.4.2.Final</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.2.78</version>
+    </dependency>
+
+    <dependency>
+      <groupId>ma.glasnost.orika</groupId>
+      <artifactId>orika-core</artifactId>
+      <version>1.4.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.dozer</groupId>
+      <artifactId>dozer-spring</artifactId>
+      <version>5.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.dozer</groupId>
+      <artifactId>dozer</artifactId>
+      <version>5.5.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.modelmapper</groupId>
+      <artifactId>modelmapper</artifactId>
+      <version>2.3.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
@@ -92,6 +149,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
