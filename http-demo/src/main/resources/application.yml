@@ -1,0 +1,7 @@
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  application:
+    name: http-demo
+  profiles:
+    active: live

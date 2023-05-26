@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+#log
+logging:
+  level:
+    root: INFO
+    org.gy.demo.http: DEBUG
+
+feign:
+  demoClientCfg:
+    url: http://localhost:8080
+#  httpclient:
+#    enabled: false
+#    max-connections: 500
+#    max-connections-per-route: 100
+#    connection-timeout: 2000
+#    ok-http:
+#      read-timeout: 3000
+#  okhttp:
+#    enabled: true
+#  compression:
+#    request:
+#      enabled: true
+#      min-request-size: 2048
+#      mime-types: text/xml,application/xml,application/json
+#    response:
+#      enabled: true
+#  client:
+#    config:
+#      default:
+#        connectTimeout: 5000
+#        readTimeout: 5000
+#        loggerLevel: BASIC
+#      demoClient:
+#        logger-level: FULL
