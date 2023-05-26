@@ -2,18 +2,17 @@ package org.gy.demo.webflux.config;
 
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
-import java.util.function.Function;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorResourceFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.resources.LoopResources;
+import reactor.netty.tcp.TcpClient;
+
+import java.time.Duration;
 
 /**
  * 功能描述：
@@ -29,26 +28,34 @@ public class WebClientConfig {
     ReactorResourceFactory resourceFactory() {
         ReactorResourceFactory factory = new ReactorResourceFactory();
         factory.setUseGlobalResources(false);
-        ConnectionProvider provider = ConnectionProvider.create("webflux", 500);
+        //连接池配置
+        ConnectionProvider provider = ConnectionProvider.create("custom-connect", 500);
         factory.setConnectionProvider(provider);
-        factory.setLoopResources(LoopResources.create("webflux-http"));
+        //选择器线程数、工作线程数配置
+        LoopResources loopResources = LoopResources.create("custom-loop", 8, 64, true);
+        factory.setLoopResources(loopResources);
         return factory;
     }
 
     @Bean
-    WebClient webClient() {
-        Function<HttpClient, HttpClient> mapper = client ->
-            client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
-                .option(ChannelOption.SO_TIMEOUT, 3000)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .doOnConnected(conn -> {
-                    conn.addHandlerLast(new ReadTimeoutHandler(3));
-                    conn.addHandlerLast(new WriteTimeoutHandler(3));
-                });
-        ClientHttpConnector connector = new ReactorClientHttpConnector(resourceFactory(), mapper);
-        return WebClient.builder().clientConnector(connector).build();
+    HttpClient httpClient(ReactorResourceFactory resourceFactory) {
+        TcpClient tcpClient = TcpClient.create(resourceFactory.getConnectionProvider());
+        tcpClient.runOn(resourceFactory.getLoopResources());
+        tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
+//        tcpClient.option(ChannelOption.SO_TIMEOUT, 3000);
+        tcpClient.option(ChannelOption.SO_KEEPALIVE, true);
+        tcpClient.option(ChannelOption.TCP_NODELAY, true);
+        tcpClient.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+//        tcpClient.doOnConnected(conn -> {
+//            conn.addHandlerLast(new ReadTimeoutHandler(3));
+//            conn.addHandlerLast(new WriteTimeoutHandler(3));
+//        });
+        return HttpClient.from(tcpClient).responseTimeout(Duration.ofMillis(3000));
+    }
+
+    @Bean
+    WebClient webClient(HttpClient httpClient) {
+        return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
     }
 
 }
