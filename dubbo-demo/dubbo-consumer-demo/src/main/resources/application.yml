@@ -32,7 +32,7 @@ dubbo:
   registry:
     address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
     timeout: 60000   #超时时间设置，太短可能会报错单位是ms，也就是60秒
-    group: live
+#    group: live
   metadata-report:
     address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
     group: live

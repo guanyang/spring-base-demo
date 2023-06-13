@@ -28,7 +28,7 @@ dubbo:
   registry:
     address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181   #注册中心的ip可以直接加上端口，也可以同下面的port设置
     timeout: 60000   #超时时间设置，太短可能会报错单位是ms
-    group: live
+#    group: live
   metadata-report:
     address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
     group: live
