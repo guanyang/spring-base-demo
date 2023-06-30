@@ -1,14 +1,16 @@
 package org.gy.demo.configdemo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.stream.LongStream;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.demo.configdemo.service.IHelloService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.util.LambdaSafe;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.LongStream;
 
 /**
  * 功能描述：
@@ -47,8 +49,18 @@ public class TestMain {
         List<BiFunction<IHelloService, String, String>> list = new ArrayList<>();
         list.add(function);
 
-        LambdaSafe.callbacks(BiFunction.class, list, service).invokeAnd(c -> c.apply(service, "test"))
-            .forEach(System.out::println);
+        LambdaSafe.callbacks(BiFunction.class, list, service).invokeAnd(c -> c.apply(service, "test")).forEach(System.out::println);
+    }
+
+    @Test
+    public void test3() {
+        IHelloService service = new MyCustomHelloService();
+
+        Function<IHelloService, String> function = IHelloService::hello5;
+        List<Function<IHelloService, String>> list = new ArrayList<>();
+        list.add(function);
+
+        LambdaSafe.callbacks(Function.class, list, service).invokeAnd(c -> c.apply(service)).forEach(System.out::println);
     }
 
     public static class MyCustomHelloService implements IHelloService {

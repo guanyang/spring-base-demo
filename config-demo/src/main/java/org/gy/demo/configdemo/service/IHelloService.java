@@ -23,4 +23,8 @@ public interface IHelloService {
         return String.join("@", String.valueOf(System.currentTimeMillis()), msg);
     }
 
+    default String hello5() {
+        return String.join("@", String.valueOf(System.currentTimeMillis()), "hello5");
+    }
+
 }
