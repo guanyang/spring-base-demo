@@ -22,7 +22,7 @@ spring:
         max-wait: 30000
         min-evictable-idle-time-millis: 30000
         max-evictable-idle-time-millis: 30000
-        time-between-eviction-runs-millis: 0
+        time-between-eviction-runs-millis: 30000
         validation-query: select 1
         validation-query-timeout: -1
         test-on-borrow: false
@@ -34,15 +34,15 @@ spring:
         share-prepared-statements: true
       datasource:
         master:
-          url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8
+          url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
           username: root
           password: 12345678
-          driver-class-name: com.mysql.jdbc.Driver
+          driver-class-name: com.mysql.cj.jdbc.Driver
         slave_1:
-          url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8
+          url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
           username: root
           password: 12345678
-          driver-class-name: com.mysql.jdbc.Driver
+          driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis-plus:
   # 如果是放在resource目录 classpath:/mapper/*Mapper.xml
@@ -52,6 +52,7 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+      logic-delete-field: deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
   configuration:
