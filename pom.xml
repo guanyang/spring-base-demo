@@ -24,7 +24,7 @@
     <module>vertx-springboot-demo</module>
     <module>java-chassis-demo</module>
     <module>http-demo</module>
-    <module>spring-batch-demo</module>
+<!--    <module>spring-batch-demo</module>-->
   </modules>
   <properties>
     <java.source.version>1.8</java.source.version>
