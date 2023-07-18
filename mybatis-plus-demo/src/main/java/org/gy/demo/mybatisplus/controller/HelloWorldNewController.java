@@ -30,8 +30,7 @@ public class HelloWorldNewController {
 
     @GetMapping("/list")
     public ResponseEntity<PageDTO<HelloWorldNew>> list(PageDTO<HelloWorldNew> page) {
-        LambdaQueryWrapper<HelloWorldNew> wrapper = Wrappers.lambdaQuery();
-        helloWorldNewService.page(page, wrapper);
+        helloWorldNewService.lambdaQuery().page(page);
         return ResponseEntity.ok(page);
     }
 

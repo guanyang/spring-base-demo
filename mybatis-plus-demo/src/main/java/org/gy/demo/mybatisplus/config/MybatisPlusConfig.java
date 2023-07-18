@@ -1,5 +1,6 @@
 package org.gy.demo.mybatisplus.config;
 
+import com.baomidou.dynamic.datasource.plugin.MasterSlaveAutoRoutingPlugin;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
@@ -29,7 +30,17 @@ public class MybatisPlusConfig {
         interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
         //防全表更新与删除插件
         interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
+        //数据变动记录插件
+//        interceptor.addInnerInterceptor(new DataChangeRecorderInnerInterceptor());
         return interceptor;
+    }
+
+    /**
+     * 读写分离配置
+     */
+    @Bean
+    public MasterSlaveAutoRoutingPlugin masterSlaveAutoRoutingPlugin() {
+        return new MasterSlaveAutoRoutingPlugin();
     }
 
 }
