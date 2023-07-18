@@ -15,34 +15,64 @@ spring:
     dynamic:
       primary: master #设置默认的数据源或者数据源组,默认值即为master
       strict: false #严格匹配数据源,默认false. true未匹配到指定数据源时抛异常,false使用默认数据源
-      druid:
-        initial-size: 5
-        max-active: 20
-        min-idle: 5
-        max-wait: 30000
-        min-evictable-idle-time-millis: 30000
-        max-evictable-idle-time-millis: 30000
-        time-between-eviction-runs-millis: 30000
-        validation-query: select 1
-        validation-query-timeout: -1
-        test-on-borrow: false
-        test-on-return: false
-        test-while-idle: true
-        pool-prepared-statements: true
-        max-pool-prepared-statement-per-connection-size: 20
-        filters: stat,wall
-        share-prepared-statements: true
+      p6spy: false
+      hikari:
+        connection-timeout: 30000   #连接超时，单位毫秒，默认30s
+        validation-timeout: 5000    #检测连接是否有效，单位毫秒，默认5s
+        keepalive-time: 60000       #连接探活时间，单位毫秒，默认禁用，建议60s
+        max-lifetime: 1800000       #连接最长生命周期，建议小于mysql wait_timeout，单位毫秒，默认30min
+        connection-test-query: select 1
+        minimum-idle: 20            #最小空闲连接数，默认=maxPoolSize
+        maximum-pool-size: 20       #连接池最大值，建议与minimumIdle值相同从而保证性能，默认10，连接数 = ((cpu核数 * 2) + 磁盘有效主轴数)
+        data-source-properties:     #数据库连接属性配置参考：https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration
+          #https://dev.mysql.com/doc/connector-j/8.1/en/connector-j-reference-configuration-properties.html
+          #https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf
+          cachePrepStmts: true
+          prepStmtCacheSize: 250
+          prepStmtCacheSqlLimit: 2048
+          useServerPrepStmts: true
+          useLocalSessionState: true
+          rewriteBatchedStatements: true
+          cacheResultSetMetadata: true
+          cacheServerConfiguration: true
+          elideSetAutoCommits: true
+          maintainTimeStats: false
+#      druid:
+#        initial-size: 5
+#        max-active: 20
+#        min-idle: 5
+#        max-wait: 30000
+#        min-evictable-idle-time-millis: 30000
+#        max-evictable-idle-time-millis: 30000
+#        time-between-eviction-runs-millis: 30000
+#        validation-query: select 1
+#        validation-query-timeout: -1
+#        test-on-borrow: false
+#        test-on-return: false
+#        test-while-idle: true
+#        pool-prepared-statements: true
+#        max-pool-prepared-statement-per-connection-size: 20
+#        filters: stat,wall
+#        share-prepared-statements: true
       datasource:
         master:
           url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
+#          url: jdbc:p6spy:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
           username: root
           password: 12345678
           driver-class-name: com.mysql.cj.jdbc.Driver
+#          driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+          type: com.zaxxer.hikari.HikariDataSource
+#          type: com.alibaba.druid.pool.DruidDataSource
         slave_1:
           url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
+#          url: jdbc:p6spy:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
           username: root
           password: 12345678
           driver-class-name: com.mysql.cj.jdbc.Driver
+#          driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+          type: com.zaxxer.hikari.HikariDataSource
+#          type: com.alibaba.druid.pool.DruidDataSource
 
 mybatis-plus:
   # 如果是放在resource目录 classpath:/mapper/*Mapper.xml
