@@ -24,7 +24,7 @@
     <module>vertx-springboot-demo</module>
     <module>java-chassis-demo</module>
     <module>http-demo</module>
-<!--    <module>spring-batch-demo</module>-->
+    <module>quarkus-demo</module>
   </modules>
   <properties>
     <java.source.version>1.8</java.source.version>
@@ -105,7 +105,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.16.20</version>
+        <version>1.18.28</version>
       </dependency>
 
       <dependency>
