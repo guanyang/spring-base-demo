@@ -1,13 +1,14 @@
 package org.gy.demo.redisdemo.controller;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.core.dto.Response;
 import org.gy.framework.limit.annotation.LimitCheck;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 功能描述：
@@ -29,6 +30,11 @@ public class TestController {
         map.put("key", key);
         map.put("time", System.currentTimeMillis());
         return Response.asSuccess(map);
+    }
+
+    @GetMapping("/hello")
+    public String hello(String key) {
+        return String.valueOf(System.currentTimeMillis());
     }
 
 }

@@ -1,10 +1,12 @@
 package org.gy.demo.webflux.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
@@ -12,6 +14,8 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 /**
  * 功能描述：
@@ -63,6 +67,18 @@ public class TestController {
     public Mono<String> list(@PathVariable int times) {
         String url = String.format("http://127.0.0.1:8080/api/test/hello/%d", times);
         return webClient.get().uri(url).retrieve().bodyToMono(String.class);
+    }
+
+    @GetMapping(value = "/flux", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> flux() {
+        Flux<String> result = Flux.fromStream(IntStream.range(1, 5).mapToObj(i -> {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+            }
+            return "flux data--" + i;
+        }));
+        return result;
     }
 
 }
