@@ -10,7 +10,7 @@
   <artifactId>dubbo-demo</artifactId>
   <packaging>pom</packaging>
   <properties>
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
     <dubbo.version>2.7.15</dubbo.version>
     <spring-boot.version>2.6.3</spring-boot.version>
   </properties>
@@ -34,18 +34,15 @@
         <version>${project.version}</version>
       </dependency>
 
-      <!-- Apache Dubbo版本申明  -->
+      <!-- Dubbo -->
       <dependency>
         <groupId>org.apache.dubbo</groupId>
-        <artifactId>dubbo-spring-boot-starter</artifactId>
+        <artifactId>dubbo-bom</artifactId>
         <version>${dubbo.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.apache.dubbo</groupId>
-        <artifactId>dubbo</artifactId>
-        <version>${dubbo.version}</version>
-      </dependency>
-      <!--zookeeper 注册中心客户端引入 -->
+
       <dependency>
         <groupId>org.apache.dubbo</groupId>
         <artifactId>dubbo-dependencies-zookeeper</artifactId>
@@ -55,6 +52,17 @@
           <exclusion>
             <artifactId>slf4j-log4j12</artifactId>
             <groupId>org.slf4j</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>3.7.0</version>
+        <exclusions>
+          <exclusion>
+            <groupId>io.netty</groupId>
+            <artifactId>netty</artifactId>
           </exclusion>
         </exclusions>
       </dependency>

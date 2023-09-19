@@ -25,21 +25,20 @@ spring:
 dubbo:
   application:            #应用配置，用于配置当前应用信息，不管该应用是提供者还是消费者。
     name: dubbo-provider-demo #应用名称
+    logger: slf4j
+    qos-enable: true
+    qos-port: 22222
   registry:
-    address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181   #注册中心的ip可以直接加上端口，也可以同下面的port设置
-    timeout: 60000   #超时时间设置，太短可能会报错单位是ms
-#    group: live
+    address: ${DUBBO_REGISTRY_ADDRESS:zookeeper://127.0.0.1:2181}
+    timeout: 60000   #超时时间设置，太短可能会报错单位是ms，也就是60秒
   metadata-report:
-    address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
-    group: live
+    address: ${DUBBO_METADATA_ADDRESS:zookeeper://127.0.0.1:2181}
     timeout: 60000   #超时时间设置，太短可能会报错单位是ms
-  protocol:     #指定使用dubbo协议，端口是20880可以是其他端口不影响使用
+  config-center:
+    address: ${DUBBO_CONFIG_ADDRESS:zookeeper://127.0.0.1:2181}
+  protocol: #指定使用dubbo协议，端口是20880可以是其他端口不影响使用
     name: dubbo
-    port: 43916
+    port: -1
   provider:
     group: live
     version: 1.0.0
-  config-center:
-    address: zookeeper://10.1.51.39:2181?backup=10.1.51.40:2181,10.1.51.41:2181
-    group: live
-
