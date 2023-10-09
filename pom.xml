@@ -15,7 +15,6 @@
     <module>webflux-demo</module>
     <module>dubbo-demo</module>
     <module>flink-demo</module>
-    <module>femas-demo</module>
     <module>redis-demo</module>
     <module>disruptor-demo</module>
     <module>log-demo</module>
