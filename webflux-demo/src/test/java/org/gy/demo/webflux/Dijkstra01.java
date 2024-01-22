@@ -10,10 +10,16 @@ public class Dijkstra01 {
     private final Map<Vertex, Integer> distances; // 起始顶点到其他所有顶点的最短距离
     private final Map<Vertex,Vertex> previousVertices; // 记录每个顶点的前一个顶点
 
+    private final Set<Vertex> visited; // 记录每个顶点是否被访问过
+
+    private final PriorityQueue<Vertex> queue; // 优先队列，使用优先队列来选择当前距离最小的未访问顶点
+
     public Dijkstra01(Map<Vertex, Map<Vertex, Integer>> graph) {
         this.graph = graph;
         distances = new HashMap<>();
         previousVertices = new HashMap<>();
+        visited = new HashSet<>();
+        queue = new PriorityQueue<>((v1, v2) -> distances.get(v1) - distances.get(v2));
     }
 
     public Map<Vertex, Integer> computeShortestPaths(Vertex startVertex) {
@@ -26,12 +32,18 @@ public class Dijkstra01 {
         }
 
         // 使用优先队列来选择当前距离最小的未访问顶点
-        PriorityQueue<Vertex> queue = new PriorityQueue<>((v1, v2) -> distances.get(v1) - distances.get(v2));
         queue.add(startVertex);
 
         // 主循环
         while (!queue.isEmpty()) {
             Vertex currentVertex = queue.poll();
+            // 如果当前顶点已经被访问过，则跳过
+            if (visited.contains(currentVertex)) {
+                continue;
+            }
+            // 标记当前顶点已访问过
+            visited.add(currentVertex);
+
             // 遍历当前顶点的所有相邻顶点
             for (Map.Entry<Vertex, Integer> entry : graph.get(currentVertex).entrySet()) {
                 int distanceToNeighbor = distances.get(currentVertex) + entry.getValue();
@@ -58,7 +70,7 @@ public class Dijkstra01 {
     }
 
 
-    //时间复杂度：Dijkstra算法的时间复杂度为O(V^2)，其中V是图中顶点的个数
+    //时间复杂度：Dijkstra算法的时间复杂度可以达到O(E log V)，其中E是图中边的条数，V是图中顶点的个数
     //空间复杂度：Dijkstra算法的额外空间复杂度为O(V)，其中V是图中顶点的个数
     public static void main(String[] args) {
         // 创建一个图的邻接表表示
