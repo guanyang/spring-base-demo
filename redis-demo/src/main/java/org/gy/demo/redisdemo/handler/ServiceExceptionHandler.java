@@ -1,10 +1,12 @@
 package org.gy.demo.redisdemo.handler;
 
+import com.baomidou.lock.exception.LockException;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.gy.demo.redisdemo.handler.lock.DistributedLockException;
 import org.gy.framework.core.dto.Response;
 import org.gy.framework.core.exception.BizException;
 import org.gy.framework.core.exception.CommonErrorCode;
@@ -161,6 +163,12 @@ public class ServiceExceptionHandler {
     public Response handleCommonException(LimitException e) {
         log.info("[LimitException]限流异常捕获: code={},msg={}", e.getCode(), e.getMsg());
         return Response.asError(e.getCode(), e.getMsg());
+    }
+
+    @ExceptionHandler({LockException.class, DistributedLockException.class})
+    public Response handleLockException(RuntimeException e) {
+        log.info("[LockException]分布式锁异常捕获: msg={}", e.getMessage(), e);
+        return Response.asError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "操作太频繁，请稍后重试!");
     }
 
     private String buildErrMsg(BindingResult br) {

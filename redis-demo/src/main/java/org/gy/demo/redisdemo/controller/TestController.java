@@ -1,14 +1,22 @@
 package org.gy.demo.redisdemo.controller;
 
+import com.baomidou.lock.annotation.Lock4j;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.gy.demo.redisdemo.handler.lock.DistributedLock;
+import org.gy.demo.redisdemo.handler.lock.DistributedLockAction;
+import org.gy.demo.redisdemo.handler.lock.DistributedLockAction.LockResult;
+import org.gy.demo.redisdemo.handler.lock.DistributedLockException;
+import org.gy.demo.redisdemo.handler.lock.support.RedisDistributedLock;
+import org.gy.demo.redisdemo.model.User;
 import org.gy.framework.core.dto.Response;
 import org.gy.framework.limit.annotation.LimitCheck;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 功能描述：
@@ -21,6 +29,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/test")
 public class TestController {
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
 
     @GetMapping("/limit")
@@ -35,6 +46,33 @@ public class TestController {
     @GetMapping("/hello")
     public String hello(String key) {
         return String.valueOf(System.currentTimeMillis());
+    }
+
+
+    @GetMapping("/lock4j")
+    @Lock4j(keys = {"#user.id"}, expire = 60000, acquireTimeout = 500)
+    public Response<User> testLock4j(User user) throws InterruptedException {
+        user.setTime(System.currentTimeMillis());
+        Thread.sleep(2000);
+        return Response.asSuccess(user);
+    }
+
+    @GetMapping("/lock")
+    public Response<User> testLock(User user) {
+        DistributedLock lock = new RedisDistributedLock(stringRedisTemplate, "GY:LOCK:TEST:" + user.getId(), 60000);
+        LockResult<User> result = DistributedLockAction.execute(lock, 200, 50, () -> {
+            user.setTime(System.currentTimeMillis());
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+            return user;
+        });
+        if (!result.success()) {
+            throw new DistributedLockException("lock fail");
+        }
+        return Response.asSuccess(result.getData());
     }
 
 }
