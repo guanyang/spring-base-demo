@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author gy
  * @since 2023-07-14
  */
-public interface IHelloWorldNewService extends IService<HelloWorldNew> {
+public interface IHelloWorldNewService extends ICommonService<HelloWorldNew> {
 
 }

@@ -15,7 +15,7 @@ spring:
 
 rocketmq:
   demo:        #配置标识，自定义即可
-    nameServer: 127.0.0.1:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+    nameServer: 10.37.65.206:9876    #【必须】nameServer地址，格式: `host:port;host:port`
     topic: DemoTopic    #【必须】消息topic
     producer:     #producer配置
       groupName: DemoProducerGroup    #【producer存在时必须】组名称

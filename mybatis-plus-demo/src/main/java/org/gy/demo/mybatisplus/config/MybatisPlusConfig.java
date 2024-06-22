@@ -38,9 +38,14 @@ public class MybatisPlusConfig {
     /**
      * 读写分离配置
      */
+//    @Bean
+//    public MasterSlaveAutoRoutingPlugin masterSlaveAutoRoutingPlugin() {
+//        return new MasterSlaveAutoRoutingPlugin();
+//    }
+
     @Bean
-    public MasterSlaveAutoRoutingPlugin masterSlaveAutoRoutingPlugin() {
-        return new MasterSlaveAutoRoutingPlugin();
+    public MySqlInjector sqlInjector() {
+        return new MySqlInjector();
     }
 
 }

@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2023-07-14
  */
 @Service
-public class HelloWorldNewServiceImpl extends ServiceImpl<HelloWorldNewMapper, HelloWorldNew> implements IHelloWorldNewService {
+public class HelloWorldNewServiceImpl extends CommonServiceImpl<HelloWorldNewMapper, HelloWorldNew> implements IHelloWorldNewService {
 
 }

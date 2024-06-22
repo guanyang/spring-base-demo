@@ -56,7 +56,7 @@ spring:
 #        share-prepared-statements: true
       datasource:
         master:
-          url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
+          url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=60000
 #          url: jdbc:p6spy:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
           username: root
           password: 12345678
@@ -65,7 +65,7 @@ spring:
           type: com.zaxxer.hikari.HikariDataSource
 #          type: com.alibaba.druid.pool.DruidDataSource
         slave_1:
-          url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
+          url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true&allowMultiQueries=true&connectTimeout=10000&socketTimeout=60000
 #          url: jdbc:p6spy:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&useSSL=false
           username: root
           password: 12345678
@@ -91,7 +91,9 @@ mybatis-plus:
     cache-enabled: false
     #配置JdbcTypeForNull, oracle数据库必须配置
     jdbc-type-for-null: null
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 logging:
   level:
     com.baomidou.dynamic: debug
+    org.gy.demo.mybatisplus.mapper: debug

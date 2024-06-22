@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author gy
  * @since 2021-11-29
  */
-public interface HelloWorldMapper extends BaseMapper<HelloWorld> {
+public interface HelloWorldMapper extends CommonMapper<HelloWorld> {
 
 }
