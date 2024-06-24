@@ -3,6 +3,7 @@ package org.gy.demo.http.service;
 import org.gy.demo.http.config.DemoClientOkHttpConfig;
 import org.gy.framework.core.dto.Response;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -20,5 +21,8 @@ public interface FeignService {
 
     @RequestMapping("/v2/hello")
     Response<Long> helloV2();
+
+    @RequestMapping("/v3/hello/{time}")
+    Response<Long> helloV3(@PathVariable("time") long time);
 
 }

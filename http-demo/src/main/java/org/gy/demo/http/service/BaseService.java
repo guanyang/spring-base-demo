@@ -1,16 +1,17 @@
 package org.gy.demo.http.service;
 
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+
 import feign.FeignException;
 import feign.FeignException.FeignClientException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.gy.framework.core.dto.BaseResponse;
 import org.gy.framework.core.dto.Response;
 import org.gy.framework.core.exception.CommonException;
-
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
 /**
  * 功能描述：
@@ -23,6 +24,15 @@ public interface BaseService {
 
     String SERVER_ERROR = "Internal Server Error";
     String CLIENT_ERROR = "Invalid Request Error";
+
+    static <T, R> CompletableFuture<BaseResponse> executeAsync(T req, Function<T, R> responseFunction) {
+        return CompletableFuture.supplyAsync(() -> execute(req, responseFunction));
+    }
+
+    static <T, R> CompletableFuture<BaseResponse> executeAsync(T req, Function<T, R> responseFunction,
+        Executor executor) {
+        return CompletableFuture.supplyAsync(() -> execute(req, responseFunction), executor);
+    }
 
     static <T, R> BaseResponse execute(T req, Function<T, R> responseFunction) {
         return execute(() -> responseFunction.apply(req));
