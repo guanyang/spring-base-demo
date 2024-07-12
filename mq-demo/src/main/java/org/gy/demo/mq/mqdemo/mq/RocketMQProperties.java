@@ -3,7 +3,7 @@ package org.gy.demo.mq.mqdemo.mq;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
-import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
+import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
 
 /**
  * 功能描述：

@@ -84,20 +84,20 @@ public class TestController {
         }
     }
 
-    @Resource(name = "demoPulsarProducer")
-    private Producer<String> demoPulsarProducer;
-
-    @GetMapping("/sendMsg3")
-    public Response sendMsg3(String msg) {
-        try {
-            MessageId sendResult = demoPulsarProducer.send(msg);
-            log.info("发送消息：{}", sendResult);
-            return Response.asSuccess(sendResult);
-        } catch (Exception e) {
-            log.error("sendMsg exception:msg={}.", msg, e);
-            return Response.asError(1002, "消息发送失败");
-        }
-    }
+//    @Resource(name = "demoPulsarProducer")
+//    private Producer<String> demoPulsarProducer;
+//
+//    @GetMapping("/sendMsg3")
+//    public Response sendMsg3(String msg) {
+//        try {
+//            MessageId sendResult = demoPulsarProducer.send(msg);
+//            log.info("发送消息：{}", sendResult);
+//            return Response.asSuccess(sendResult);
+//        } catch (Exception e) {
+//            log.error("sendMsg exception:msg={}.", msg, e);
+//            return Response.asError(1002, "消息发送失败");
+//        }
+//    }
 
 
     @Data

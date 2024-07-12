@@ -36,4 +36,22 @@ public class RocketMqConfiguration {
         return new RocketMqConsumer(demoProperties, demoListener);
     }
 
+    @Bean(name = "orderlyProperties")
+    @ConfigurationProperties(prefix = "rocketmq.orderly")
+    public RocketMQProperties orderlyProperties() {
+        return new RocketMQProperties();
+    }
+
+
+    @Bean(name = "orderlyProducer")
+    public RocketMqProducer orderlyProducer(@Qualifier("orderlyProperties") RocketMQProperties orderlyProperties) {
+        return new RocketMqProducer(orderlyProperties);
+    }
+
+    @Bean(name = "orderlyConsumer")
+    public RocketMqConsumer orderlyConsumer(@Qualifier("orderlyProperties") RocketMQProperties orderlyProperties,
+        @Qualifier("orderlyListener") MessageListener orderlyListener) {
+        return new RocketMqConsumer(orderlyProperties, orderlyListener);
+    }
+
 }

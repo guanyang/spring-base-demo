@@ -7,34 +7,44 @@ server:
 spring:
   application:
     name: rocketmq-demo
+  profiles:
+    active: dev
   redis:
-    host: 10.1.104.18
-    port: 6005
-    password: veGNOlAju847vHCs
-    database: 1
+    host: 127.0.0.1
+    port: 6379
+    password:
+    lettuce:
+      pool:
+        max-active: 200
+        max-wait: 2000ms
+        max-idle: 50
+        min-idle: 10
 
 rocketmq:
   demo:        #配置标识，自定义即可
-    nameServer: 10.37.65.206:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+    nameServer: 10.33.32.6:9876    #【必须】nameServer地址，格式: `host:port;host:port`
     topic: DemoTopic    #【必须】消息topic
     producer:     #producer配置
       groupName: DemoProducerGroup    #【producer存在时必须】组名称
       instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
       sendMessageTimeout: 3000    #消息发送超时时间，单位：毫秒，默认：3000
-      compressMessageBodyThreshold: 4096    #消息压缩阈值，超过则进行压缩，默认：4KB
       retryTimesWhenSendFailed: 2   #消息同步发送失败重试次数，默认：2
       retryTimesWhenSendAsyncFailed: 2    #消息异步发送失败重试次数，默认：2
-      retryNextServer: false    #消息发送失败是否重试另一个broker，默认：false
-      maxMessageSize: 4194304   #最大消息体大小，默认：4MB
     consumer:        #consumer配置
       groupName: DemoConsumerGroup    #【consumer存在时必须】组名称
       instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
       messageModel: CLUSTERING  #消费模式，CLUSTERING集群，BROADCASTING广播，默认：CLUSTERING
-      selectorExpression: 'tag1||tag2'   #消费tag表达式定义，*匹配所有，格式：tag1||tag2，默认：*
-      consumeMessageBatchMaxSize: 1   #批量消费消息数量，默认：1
+      selectorExpression: '*'   #消费tag表达式定义，*匹配所有，格式：tag1||tag2，默认：*
       consumeThreadMin: 20    #消费线程最小值定义，默认：20
       consumeThreadMax: 20    #消费线程最大值定义，默认：20
       consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET
+  orderly:        #配置标识，自定义即可
+    nameServer: 10.33.32.6:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+    topic: OrderlyTopic    #【必须】消息topic
+    producer:     #producer配置
+      groupName: OrderlyProducerGroup    #【producer存在时必须】组名称
+    consumer:        #consumer配置
+      groupName: OrderlyConsumerGroup    #【consumer存在时必须】组名称
 
 pulsar:
   serverUrl: pulsar://localhost:6650

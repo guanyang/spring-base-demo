@@ -1,0 +1,73 @@
+package org.gy.demo.mq.mqdemo.controller;
+
+
+import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.gy.demo.mq.mqdemo.executor.EventMessageSendService;
+import org.gy.demo.mq.mqdemo.model.EventMessage;
+import org.gy.demo.mq.mqdemo.model.EventType;
+import org.gy.demo.mq.mqdemo.mq.RocketMqProducer;
+import org.gy.framework.core.dto.Response;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * @author gy
+ */
+@Slf4j
+@RequestMapping("/msg")
+@RestController
+public class MsgController {
+
+    @Resource
+    private EventMessageSendService eventMessageSendService;
+
+    @Resource(name = "demoProducer")
+    private RocketMqProducer demoProducer;
+
+    //普通消息测试
+    @GetMapping("/demoMsg")
+    public Response<Void> demoMsg(int total) {
+        for (int i = 0; i < total; i++) {
+            String msg = "msg" + i;
+//            String bizKey = "bizKey" + i;
+//            EventMessage<String> event = EventMessage.of(EventType.DEMO_EVENT, msg, bizKey);
+            EventMessage<String> event = EventMessage.of(EventType.DEMO_EVENT, msg);
+            log.info("demoMsg发送消息开始：req={}", event);
+            SendResult sendResult = eventMessageSendService.sendNormalMessage(event);
+            log.info("demoMsg发送消息结束：res={}", sendResult);
+        }
+        return Response.asSuccess();
+    }
+
+    //延迟消息测试
+    @GetMapping("/delayMsg")
+    public Response<Void> delayMsg(int total) {
+        for (int i = 0; i < total; i++) {
+            String msg = "msg" + i;
+            EventMessage<String> event = EventMessage.of(EventType.DEMO_EVENT, msg);
+            event.setDelayTimeLevel(2);
+            log.info("delayMsg发送消息开始：req={}", event);
+            SendResult sendResult = eventMessageSendService.sendNormalMessage(event);
+            log.info("delayMsg发送消息结束：res={}", sendResult);
+        }
+        return Response.asSuccess();
+    }
+
+    //顺序消息测试
+    @GetMapping("/orderlyMsg")
+    public Response<Void> orderlyMsg(int total) {
+        for (int i = 0; i < total; i++) {
+            String msg = "msg" + i;
+            EventMessage<String> event = EventMessage.of(EventType.DEMO_EVENT, msg);
+            event.setOrderlyKey("orderlyMsg");
+            log.info("orderlyMsg发送消息开始：req={}", event);
+            SendResult sendResult = eventMessageSendService.sendOrderlyMessage(event);
+            log.info("orderlyMsg发送消息结束：res={}", sendResult);
+        }
+        return Response.asSuccess();
+    }
+
+}

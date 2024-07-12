@@ -43,7 +43,8 @@ public class RocketMqProducer implements InitializingBean, DisposableBean {
         String groupName = producerConfig.getGroupName();
         Assert.hasText(groupName, "RocketMQProperties.producer.groupName must not be null");
 
-        producer = new DefaultMQProducer(groupName);
+        producer = new DefaultMQProducerWrapper(groupName);
+//        producer = new DefaultMQProducer(groupName);
         producer.setNamesrvAddr(nameServer);
         //同一个group定义多个实例，需要定义不同的实例名称，避免冲突
         producer.setInstanceName(producerConfig.getInstanceName());

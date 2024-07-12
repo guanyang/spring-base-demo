@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.MessageListener;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
-import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
+import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.Consumer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -66,6 +66,7 @@ public class RocketMqConsumer implements InitializingBean, DisposableBean {
         consumer.registerMessageListener(messageListener);
         ConsumeFromWhere consumeFromWhere = ConsumeFromWhere.valueOf(consumerConfig.getConsumeFromWhere());
         consumer.setConsumeFromWhere(consumeFromWhere);
+        consumer.registerConsumeMessageHook(new TraceConsumeMessageHook());
         consumer.start();
         log.info("RocketMQ消费者启动成功.");
     }
