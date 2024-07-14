@@ -4,10 +4,10 @@ package org.gy.demo.mq.mqdemo.controller;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.TransactionSendResult;
 import org.gy.demo.mq.mqdemo.executor.EventMessageSendService;
 import org.gy.demo.mq.mqdemo.model.EventMessage;
 import org.gy.demo.mq.mqdemo.model.EventType;
-import org.gy.demo.mq.mqdemo.mq.RocketMqProducer;
 import org.gy.framework.core.dto.Response;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +23,6 @@ public class MsgController {
 
     @Resource
     private EventMessageSendService eventMessageSendService;
-
-    @Resource(name = "demoProducer")
-    private RocketMqProducer demoProducer;
 
     //普通消息测试
     @GetMapping("/demoMsg")
@@ -66,6 +63,19 @@ public class MsgController {
             log.info("orderlyMsg发送消息开始：req={}", event);
             SendResult sendResult = eventMessageSendService.sendOrderlyMessage(event);
             log.info("orderlyMsg发送消息结束：res={}", sendResult);
+        }
+        return Response.asSuccess();
+    }
+
+    //事务消息测试
+    @GetMapping("/transactionMsg")
+    public Response<Void> transactionMsg(int total) {
+        for (int i = 0; i < total; i++) {
+            String msg = "msg" + i;
+            EventMessage<String> event = EventMessage.of(EventType.DEMO_EVENT, msg);
+            log.info("transactionMsg发送消息开始：req={}", event);
+            TransactionSendResult sendResult = eventMessageSendService.sendTransactionMessage(event);
+            log.info("transactionMsg发送消息结束：res={}", sendResult);
         }
         return Response.asSuccess();
     }

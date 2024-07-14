@@ -1,5 +1,7 @@
 package org.gy.demo.mq.mqdemo.mq;
 
+import cn.hutool.extra.spring.SpringUtil;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -7,8 +9,7 @@ import org.apache.rocketmq.client.consumer.listener.MessageListener;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.Consumer;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.RocketMQConfig;
 import org.springframework.util.Assert;
 
 /**
@@ -20,64 +21,98 @@ import org.springframework.util.Assert;
  */
 @Slf4j
 @Getter
-public class RocketMqConsumer implements InitializingBean, DisposableBean {
+public class RocketMqConsumer {
 
-    private final RocketMQProperties rocketMQProperties;
+    private final AtomicBoolean init = new AtomicBoolean(false);
 
-    private final MessageListener messageListener;
+    private final RocketMQConfig rocketMQConfig;
+
+    private final String groupName;
 
     private DefaultMQPushConsumer consumer;
 
-    public RocketMqConsumer(final RocketMQProperties rocketMQProperties, final MessageListener messageListener) {
-        this.rocketMQProperties = rocketMQProperties;
-        this.messageListener = messageListener;
+
+    public RocketMqConsumer(final RocketMQConfig rocketMQConfig) {
+        this.rocketMQConfig = checkConfig(rocketMQConfig);
+        this.groupName = rocketMQConfig.getConsumer().getGroupName();
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        log.info("开始启动RocketMQ消费者服务...");
-        String nameServer = rocketMQProperties.getNameServer();
-        Assert.hasText(nameServer, "RocketMQProperties.nameServer must not be null");
+    protected RocketMQConfig checkConfig(final RocketMQConfig rocketMQConfig) {
+        String nameServer = rocketMQConfig.getNameServer();
+        Assert.hasText(nameServer, () -> "RocketMQConfig.nameServer must not be null");
 
-        String topicName = rocketMQProperties.getTopic();
-        Assert.hasText(topicName, "RocketMQProperties.topic must not be null");
+        String topicName = rocketMQConfig.getTopic();
+        Assert.hasText(topicName, () -> "RocketMQConfig.topic must not be null");
 
-        Consumer consumerConfig = rocketMQProperties.getConsumer();
-        Assert.notNull(consumerConfig, "RocketMQProperties.consumer must not be null");
+        Consumer consumerConfig = rocketMQConfig.getConsumer();
+        Assert.notNull(consumerConfig, () -> "RocketMQConfig.consumer must not be null");
 
         String groupName = consumerConfig.getGroupName();
-        Assert.hasText(groupName, "RocketMQProperties.consumer.groupName must not be null");
+        Assert.hasText(groupName, () -> "RocketMQConfig.consumer.groupName must not be null");
 
-        consumer = new DefaultMQPushConsumer(groupName);
-        consumer.setNamesrvAddr(nameServer);
+        return rocketMQConfig;
+    }
+
+    public void init() throws Exception {
+        if (init.compareAndSet(false, true)) {
+            log.info("消费者启动开始: {}", groupName);
+            consumer = initConsumer(rocketMQConfig);
+            consumer.start();
+            log.info("消费者启动成功: {}", groupName);
+        }
+    }
+
+    public void destroy() throws Exception {
+        if (init.compareAndSet(true, false)) {
+            if (consumer != null) {
+                log.info("消费者服务关闭开始: {}", groupName);
+                consumer.shutdown();
+                log.info("消费者服务关闭成功: {}", groupName);
+            }
+        }
+    }
+
+    protected DefaultMQPushConsumer initConsumer(RocketMQConfig rocketMQConfig) throws Exception {
+        Consumer consumerConfig = rocketMQConfig.getConsumer();
+        DefaultMQPushConsumer consumer = buildConsumer(consumerConfig);
+
+        consumerCustomize(consumer, rocketMQConfig);
+        return consumer;
+    }
+
+    protected DefaultMQPushConsumer buildConsumer(Consumer consumerConfig) {
+        MessageListener messageListener = getMessageListener(consumerConfig);
+        DefaultMQPushConsumer pushConsumer = new DefaultMQPushConsumer(consumerConfig.getGroupName());
+        pushConsumer.registerMessageListener(messageListener);
+        return pushConsumer;
+    }
+
+    protected void consumerCustomize(DefaultMQPushConsumer consumer, RocketMQConfig rocketMQConfig) throws Exception {
+        Consumer consumerConfig = rocketMQConfig.getConsumer();
+        consumer.setNamesrvAddr(rocketMQConfig.getNameServer());
         //同一个group启动多个消费者，定义不同的名称，避免冲突
         consumer.setInstanceName(consumerConfig.getInstanceName());
         consumer.setNamespace(consumerConfig.getNamespace());
         MessageModel messageModel = MessageModel.valueOf(consumerConfig.getMessageModel());
         //消费方式，CLUSTERING/BROADCASTING
         consumer.setMessageModel(messageModel);
-        consumer.subscribe(topicName, consumerConfig.getSelectorExpression());
+        consumer.subscribe(rocketMQConfig.getTopic(), consumerConfig.getSelectorExpression());
         consumer.setConsumeMessageBatchMaxSize(consumerConfig.getConsumeMessageBatchMaxSize());
         //最小处理线程数
         consumer.setConsumeThreadMin(consumerConfig.getConsumeThreadMin());
         //最大处理线程数
         consumer.setConsumeThreadMax(consumerConfig.getConsumeThreadMax());
 
-        consumer.registerMessageListener(messageListener);
         ConsumeFromWhere consumeFromWhere = ConsumeFromWhere.valueOf(consumerConfig.getConsumeFromWhere());
         consumer.setConsumeFromWhere(consumeFromWhere);
         consumer.registerConsumeMessageHook(new TraceConsumeMessageHook());
-        consumer.start();
-        log.info("RocketMQ消费者启动成功.");
     }
 
-
-    @Override
-    public void destroy() throws Exception {
-        if (consumer != null) {
-            log.info("开始关闭RocketMQ消费者服务...");
-            consumer.shutdown();
-            log.info("RocketMQ消费者服务已关闭.");
-        }
+    protected MessageListener getMessageListener(Consumer consumerConfig) {
+        String beanName = consumerConfig.getMessageListenerBeanName();
+        Assert.hasText(beanName, () -> "RocketMQConfig.consumer.messageListenerBeanName must not be null");
+        MessageListener listener = SpringUtil.getBean(beanName, MessageListener.class);
+        Assert.notNull(listener, () -> "MessageListener must not be null: " + beanName);
+        return listener;
     }
 }

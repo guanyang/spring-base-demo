@@ -1,9 +1,11 @@
 package org.gy.demo.mq.mqdemo.mq;
 
+import java.util.Map;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * 功能描述：
@@ -14,20 +16,32 @@ import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
  */
 @Data
 @Accessors(chain = true)
+@ConfigurationProperties(prefix = RocketMQProperties.PREFIX)
 public class RocketMQProperties {
+
+    public static final String PREFIX = "rocketmq.config";
 
     private static final String DEFAULT_INSTANCE_NAME = "DEFAULT";
     private static final String DEFAULT_TAG = "*";
     private static final String DEFAULT_MESSAGE_MODEL = MessageModel.CLUSTERING.name();
     private static final String DEFAULT_CONSUME_FROM = ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET.name();
 
-    private String nameServer;
+    private boolean enabled = true;
 
-    private String topic;
+    private Map<String, RocketMQConfig> items;
 
-    private Producer producer;
+    @Data
+    @Accessors(chain = true)
+    public static class RocketMQConfig {
 
-    private Consumer consumer;
+        private String nameServer;
+
+        private String topic;
+
+        private Producer producer;
+
+        private Consumer consumer;
+    }
 
     @Data
     @Accessors(chain = true)
@@ -76,6 +90,14 @@ public class RocketMQProperties {
          * Maximum allowed message size in bytes.
          */
         private int maxMessageSize = 1024 * 1024 * 4;
+        /**
+         * 生产者类型
+         */
+        private ProducerType producerType = ProducerType.NORMAL;
+        /**
+         * 事务监听器beanName，仅ProducerType.TRANSACTION有效
+         */
+        private String transactionListenerBeanName;
 
     }
 
@@ -126,6 +148,20 @@ public class RocketMQProperties {
          */
         private String consumeFromWhere = DEFAULT_CONSUME_FROM;
 
+        private String messageListenerBeanName;
+
+    }
+
+    public enum ProducerType {
+        /**
+         * 普通类型
+         */
+        NORMAL,
+
+        /**
+         * 事务类型
+         */
+        TRANSACTION
     }
 
 }

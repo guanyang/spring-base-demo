@@ -206,7 +206,7 @@ public class DefaultMQProducerWrapper extends DefaultMQProducer {
         return SendCallbackWrapper.of(sendCallback);
     }
 
-    private static Message wrapTrace(Message msg) {
+    public static Message wrapTrace(Message msg) {
         if (msg == null) {
             return null;
         }

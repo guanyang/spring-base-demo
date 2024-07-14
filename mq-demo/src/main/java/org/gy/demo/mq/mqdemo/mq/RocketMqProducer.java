@@ -1,11 +1,14 @@
 package org.gy.demo.mq.mqdemo.mq;
 
+import cn.hutool.extra.spring.SpringUtil;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.TransactionListener;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.Producer;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.ProducerType;
+import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.RocketMQConfig;
 import org.springframework.util.Assert;
 
 /**
@@ -17,56 +20,103 @@ import org.springframework.util.Assert;
  */
 @Slf4j
 @Getter
-public class RocketMqProducer implements InitializingBean, DisposableBean {
+public class RocketMqProducer {
 
-    private final RocketMQProperties rocketMQProperties;
+    private final AtomicBoolean init = new AtomicBoolean(false);
+
+    private final RocketMQConfig rocketMQConfig;
+
+    private final String groupName;
 
     private DefaultMQProducer producer;
 
-    public RocketMqProducer(final RocketMQProperties rocketMQProperties) {
-        this.rocketMQProperties = rocketMQProperties;
+    public RocketMqProducer(final RocketMQConfig rocketMQConfig) {
+        this.rocketMQConfig = checkConfig(rocketMQConfig);
+        this.groupName = rocketMQConfig.getProducer().getGroupName();
     }
 
+    protected RocketMQConfig checkConfig(final RocketMQConfig rocketMQConfig) {
+        String nameServer = rocketMQConfig.getNameServer();
+        Assert.hasText(nameServer, () -> "RocketMQConfig.nameServer must not be null");
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        log.info("开始启动RocketMQ生产者服务...");
-        String nameServer = rocketMQProperties.getNameServer();
-        Assert.hasText(nameServer, "RocketMQProperties.nameServer must not be null");
+        String topicName = rocketMQConfig.getTopic();
+        Assert.hasText(topicName, () -> "RocketMQConfig.topic must not be null");
 
-        String topicName = rocketMQProperties.getTopic();
-        Assert.hasText(topicName, "RocketMQProperties.topic must not be null");
-
-        Producer producerConfig = rocketMQProperties.getProducer();
-        Assert.notNull(producerConfig, "RocketMQProperties.producer must not be null");
+        Producer producerConfig = rocketMQConfig.getProducer();
+        Assert.notNull(producerConfig, () -> "RocketMQConfig.producer must not be null");
 
         String groupName = producerConfig.getGroupName();
-        Assert.hasText(groupName, "RocketMQProperties.producer.groupName must not be null");
+        Assert.hasText(groupName, () -> "RocketMQConfig.producer.groupName must not be null");
 
-        producer = new DefaultMQProducerWrapper(groupName);
-//        producer = new DefaultMQProducer(groupName);
-        producer.setNamesrvAddr(nameServer);
-        //同一个group定义多个实例，需要定义不同的实例名称，避免冲突
-        producer.setInstanceName(producerConfig.getInstanceName());
-        producer.setNamespace(producerConfig.getNamespace());
-        producer.setSendMsgTimeout(producerConfig.getSendMessageTimeout());
-        producer.setRetryTimesWhenSendFailed(producerConfig.getRetryTimesWhenSendFailed());
-        producer.setRetryTimesWhenSendAsyncFailed(producerConfig.getRetryTimesWhenSendAsyncFailed());
-        producer.setMaxMessageSize(producerConfig.getMaxMessageSize());
-        producer.setCompressMsgBodyOverHowmuch(producerConfig.getCompressMessageBodyThreshold());
-        producer.setRetryAnotherBrokerWhenNotStoreOK(producerConfig.isRetryNextServer());
-        producer.start();
-        log.info("RocketMQ生产者启动成功.");
-
+        return rocketMQConfig;
     }
 
-    @Override
-    public void destroy() throws Exception {
-        if (producer != null) {
-            log.info("开始关闭RocketMQ生产者服务...");
-            producer.shutdown();
-            log.info("RocketMQ生产者服务已关闭.");
+
+    public void init() throws Exception {
+        if (init.compareAndSet(false, true)) {
+            log.info("生产者启动开始: {}", groupName);
+            producer = initProducer(rocketMQConfig);
+            producer.start();
+            log.info("生产者启动成功: {}", groupName);
         }
+    }
+
+    public void destroy() throws Exception {
+        if (init.compareAndSet(true, false)) {
+            if (producer != null) {
+                log.info("生产者服务关闭开始: {}", groupName);
+                producer.shutdown();
+                log.info("生产者服务关闭成功: {}", groupName);
+            }
+        }
+    }
+
+    protected DefaultMQProducer initProducer(RocketMQConfig rocketMQConfig) {
+        Producer producerConfig = rocketMQConfig.getProducer();
+
+        ProducerType producerType = producerConfig.getProducerType();
+        DefaultMQProducer producerWrapper;
+        if (ProducerType.TRANSACTION.equals(producerType)) {
+            producerWrapper = buildTransactionProducer(producerConfig);
+        } else {
+            producerWrapper = buildNormalProducer(producerConfig);
+        }
+        producerCustomize(producerWrapper, rocketMQConfig);
+        return producerWrapper;
+    }
+
+    protected void producerCustomize(DefaultMQProducer producerWrapper, RocketMQConfig rocketMQConfig) {
+        Producer producerConfig = rocketMQConfig.getProducer();
+        producerWrapper.setNamesrvAddr(rocketMQConfig.getNameServer());
+        //同一个group定义多个实例，需要定义不同的实例名称，避免冲突
+        producerWrapper.setInstanceName(producerConfig.getInstanceName());
+        producerWrapper.setNamespace(producerConfig.getNamespace());
+        producerWrapper.setSendMsgTimeout(producerConfig.getSendMessageTimeout());
+        producerWrapper.setRetryTimesWhenSendFailed(producerConfig.getRetryTimesWhenSendFailed());
+        producerWrapper.setRetryTimesWhenSendAsyncFailed(producerConfig.getRetryTimesWhenSendAsyncFailed());
+        producerWrapper.setMaxMessageSize(producerConfig.getMaxMessageSize());
+        producerWrapper.setCompressMsgBodyOverHowmuch(producerConfig.getCompressMessageBodyThreshold());
+        producerWrapper.setRetryAnotherBrokerWhenNotStoreOK(producerConfig.isRetryNextServer());
+    }
+
+    protected DefaultMQProducer buildNormalProducer(Producer producerConfig) {
+        return new DefaultMQProducerWrapper(producerConfig.getGroupName());
+    }
+
+    protected DefaultMQProducer buildTransactionProducer(Producer producerConfig) {
+        TransactionListener transactionListener = getCheckListener(producerConfig);
+        TransactionMQProducerWrapper transactionProducer = new TransactionMQProducerWrapper(
+            producerConfig.getGroupName());
+        transactionProducer.setTransactionListener(transactionListener);
+        return transactionProducer;
+    }
+
+    protected TransactionListener getCheckListener(Producer producerConfig) {
+        String beanName = producerConfig.getTransactionListenerBeanName();
+        Assert.hasText(beanName, () -> "RocketMQConfig.producer.transactionListenerBeanName must not be null");
+        TransactionListener listener = SpringUtil.getBean(beanName, TransactionListener.class);
+        Assert.notNull(listener, () -> "TransactionListener must not be null: " + beanName);
+        return listener;
     }
 
 }

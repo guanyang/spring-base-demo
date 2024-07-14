@@ -21,30 +21,45 @@ spring:
         min-idle: 10
 
 rocketmq:
-  demo:        #配置标识，自定义即可
-    nameServer: 10.33.32.6:9876    #【必须】nameServer地址，格式: `host:port;host:port`
-    topic: DemoTopic    #【必须】消息topic
-    producer:     #producer配置
-      groupName: DemoProducerGroup    #【producer存在时必须】组名称
-      instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
-      sendMessageTimeout: 3000    #消息发送超时时间，单位：毫秒，默认：3000
-      retryTimesWhenSendFailed: 2   #消息同步发送失败重试次数，默认：2
-      retryTimesWhenSendAsyncFailed: 2    #消息异步发送失败重试次数，默认：2
-    consumer:        #consumer配置
-      groupName: DemoConsumerGroup    #【consumer存在时必须】组名称
-      instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
-      messageModel: CLUSTERING  #消费模式，CLUSTERING集群，BROADCASTING广播，默认：CLUSTERING
-      selectorExpression: '*'   #消费tag表达式定义，*匹配所有，格式：tag1||tag2，默认：*
-      consumeThreadMin: 20    #消费线程最小值定义，默认：20
-      consumeThreadMax: 20    #消费线程最大值定义，默认：20
-      consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET
-  orderly:        #配置标识，自定义即可
-    nameServer: 10.33.32.6:9876    #【必须】nameServer地址，格式: `host:port;host:port`
-    topic: OrderlyTopic    #【必须】消息topic
-    producer:     #producer配置
-      groupName: OrderlyProducerGroup    #【producer存在时必须】组名称
-    consumer:        #consumer配置
-      groupName: OrderlyConsumerGroup    #【consumer存在时必须】组名称
+  config:
+    enabled: true
+    items:
+      demo: #配置标识，自定义即可
+        nameServer: local.guanyang.com:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+        topic: DemoTopic    #【必须】消息topic
+        producer: #producer配置
+          groupName: DemoProducerGroup    #【producer存在时必须】组名称
+          instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
+          sendMessageTimeout: 3000    #消息发送超时时间，单位：毫秒，默认：3000
+          retryTimesWhenSendFailed: 2   #消息同步发送失败重试次数，默认：2
+          retryTimesWhenSendAsyncFailed: 2    #消息异步发送失败重试次数，默认：2
+        consumer: #consumer配置
+          groupName: DemoConsumerGroup    #【consumer存在时必须】组名称
+          instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
+          messageModel: CLUSTERING  #消费模式，CLUSTERING集群，BROADCASTING广播，默认：CLUSTERING
+          selectorExpression: '*'   #消费tag表达式定义，*匹配所有，格式：tag1||tag2，默认：*
+          consumeThreadMin: 20    #消费线程最小值定义，默认：20
+          consumeThreadMax: 20    #消费线程最大值定义，默认：20
+          consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET
+          message-listener-bean-name: demoListener  #【必须】消息监听器bean名称，对应Spring容器中bean名称，需要实现MessageListener接口
+      orderly: #配置标识，自定义即可
+        nameServer: local.guanyang.com:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+        topic: OrderlyTopic    #【必须】消息topic
+        producer: #producer配置
+          groupName: OrderlyProducerGroup    #【producer存在时必须】组名称
+        consumer: #consumer配置
+          groupName: OrderlyConsumerGroup    #【consumer存在时必须】组名称
+          message-listener-bean-name: orderlyListener  #【必须】消息监听器bean名称，对应Spring容器中bean名称，需要实现MessageListener接口
+      demoTransaction: #配置标识，自定义即可
+        nameServer: local.guanyang.com:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+        topic: TransactionTopic    #【必须】消息topic
+        producer: #producer配置
+          groupName: TransactionProducerGroup    #【producer存在时必须】组名称
+          producer-type: TRANSACTION    #生产者类型，TRANSACTION事务，NORMAL普通，默认：NORMAL
+          transaction-listener-bean-name: demoTransactionListener  #【TRANSACTION类型必须】事务监听器bean名称，对应Spring容器中bean名称，需要实现TransactionListener接口
+        consumer: #consumer配置
+          groupName: TransactionConsumerGroup    #【consumer存在时必须】组名称
+          message-listener-bean-name: demoListener  #【必须】消息监听器bean名称，对应Spring容器中bean名称，需要实现MessageListener接口
 
 pulsar:
   serverUrl: pulsar://localhost:6650
