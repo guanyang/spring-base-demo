@@ -117,9 +117,11 @@ public class RocketMqConfiguration {
             producerMap.forEach((name, producer) -> {
                 ConsumerAction.accept(producer, RocketMqProducer::destroy);
             });
+            producerMap.clear();
             consumerMap.forEach((name, consumer) -> {
                 ConsumerAction.accept(consumer, RocketMqConsumer::destroy);
             });
+            consumerMap.clear();
         }
 
         @Override
