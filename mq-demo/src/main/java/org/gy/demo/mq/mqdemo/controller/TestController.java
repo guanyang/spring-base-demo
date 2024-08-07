@@ -1,12 +1,17 @@
 package org.gy.demo.mq.mqdemo.controller;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.gy.demo.mq.mqdemo.service.AsyncService;
+import org.gy.demo.mq.mqdemo.trace.TraceContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 功能描述：
@@ -19,6 +24,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 @RestController
 public class TestController {
+
+    @Resource
+    private AsyncService asyncService;
+
+    @GetMapping("/async")
+    public Object async() {
+        Map<String, Object> result = new HashMap<>();
+        String msg = UUID.randomUUID().toString();
+        result.put("msg", msg);
+        result.put("trace", TraceContext.getTrace());
+        asyncService.async(msg);
+        return result;
+    }
 
     @GetMapping("/lock")
     public Object lock(TestReq req, String id) {

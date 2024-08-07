@@ -14,11 +14,8 @@ public class TraceContext {
         if (StrUtil.isBlank(traceId)) {
             traceId = randomTraceId();
         }
-        Trace trace = new Trace();
-        trace.setTraceId(traceId);
-        trace.setSpanId(randomSpanId());
-        MDC.put(TraceEnum.TRACE.getName(), trace.getTraceId());
-        MDC.put(TraceEnum.SPAN.getName(), trace.getSpanId());
+        MDC.put(TraceEnum.TRACE.getName(), traceId);
+        MDC.put(TraceEnum.SPAN.getName(), randomSpanId());
     }
 
 

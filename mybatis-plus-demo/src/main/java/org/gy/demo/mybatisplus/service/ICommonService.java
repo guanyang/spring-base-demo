@@ -1,8 +1,10 @@
 package org.gy.demo.mybatisplus.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,6 +24,15 @@ public interface ICommonService<T> extends IService<T> {
     default boolean insertBatchSomeColumn(List<T> entityList) {
         return insertBatchSomeColumn(entityList, DEFAULT_BATCH_SIZE);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    default boolean updateBatchByWrapper(Collection<T> entityList,
+        Function<T, LambdaQueryWrapper<T>> wrapperFunction) {
+        return updateBatchByWrapper(entityList, wrapperFunction, DEFAULT_BATCH_SIZE);
+    }
+
+    boolean updateBatchByWrapper(Collection<T> entityList, Function<T, LambdaQueryWrapper<T>> wrapperFunction,
+        int batchSize);
 
     /**
      * 插入（批量）

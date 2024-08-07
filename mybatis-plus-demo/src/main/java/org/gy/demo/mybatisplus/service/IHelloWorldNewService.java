@@ -1,7 +1,6 @@
 package org.gy.demo.mybatisplus.service;
 
 import org.gy.demo.mybatisplus.entity.HelloWorldNew;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>

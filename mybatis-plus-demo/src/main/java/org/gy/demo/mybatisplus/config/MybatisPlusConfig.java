@@ -29,7 +29,7 @@ public class MybatisPlusConfig {
         //乐观锁插件，参考文档：https://mp.baomidou.com/guide/interceptor-optimistic-locker.html#optimisticlockerinnerinterceptor
         interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
         //防全表更新与删除插件
-        interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
+//        interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
         //数据变动记录插件
 //        interceptor.addInnerInterceptor(new DataChangeRecorderInnerInterceptor());
         return interceptor;

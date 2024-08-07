@@ -1,8 +1,15 @@
 package org.gy.demo.mybatisplus.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.toolkit.Assert;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import org.apache.ibatis.binding.MapperMethod;
+import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.gy.demo.mybatisplus.mapper.CommonMapper;
 import org.gy.demo.mybatisplus.service.ICommonService;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class CommonServiceImpl<M extends CommonMapper<T>, T> extends ServiceImpl<M, T> implements ICommonService<T> {
 
+
+    @Override
+    public boolean updateBatchByWrapper(Collection<T> entityList, Function<T, LambdaQueryWrapper<T>> wrapperFunction,
+        int batchSize) {
+        String sqlStatement = getSqlStatement(SqlMethod.UPDATE);
+        return this.executeBatch(entityList, batchSize, (sqlSession, entity) -> {
+            ParamMap<Object> param = new MapperMethod.ParamMap<>();
+            param.put(Constants.ENTITY, entity);
+            param.put(Constants.WRAPPER, wrapperFunction.apply(entity));
+            sqlSession.update(sqlStatement, param);
+        });
+    }
 
     /**
      * 插入（批量）

@@ -25,7 +25,7 @@ rocketmq:
     enabled: true
     items:
       demo: #配置标识，自定义即可
-        nameServer: local.guanyang.com:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+        nameServer: dev.rocketmq:9876    #【必须】nameServer地址，格式: `host:port;host:port`
         topic: DemoTopic    #【必须】消息topic
         producer: #producer配置
           groupName: DemoProducerGroup    #【producer存在时必须】组名称
@@ -43,7 +43,7 @@ rocketmq:
           consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET
           message-listener-bean-name: demoListener  #【必须】消息监听器bean名称，对应Spring容器中bean名称，需要实现MessageListener接口
       orderly: #配置标识，自定义即可
-        nameServer: local.guanyang.com:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+        nameServer: dev.rocketmq:9876    #【必须】nameServer地址，格式: `host:port;host:port`
         topic: OrderlyTopic    #【必须】消息topic
         producer: #producer配置
           groupName: OrderlyProducerGroup    #【producer存在时必须】组名称
@@ -51,7 +51,7 @@ rocketmq:
           groupName: OrderlyConsumerGroup    #【consumer存在时必须】组名称
           message-listener-bean-name: orderlyListener  #【必须】消息监听器bean名称，对应Spring容器中bean名称，需要实现MessageListener接口
       demoTransaction: #配置标识，自定义即可
-        nameServer: local.guanyang.com:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+        nameServer: dev.rocketmq:9876    #【必须】nameServer地址，格式: `host:port;host:port`
         topic: TransactionTopic    #【必须】消息topic
         producer: #producer配置
           groupName: TransactionProducerGroup    #【producer存在时必须】组名称
