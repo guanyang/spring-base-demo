@@ -12,4 +12,24 @@ import org.gy.demo.mybatisplus.entity.HelloWorldNew;
  */
 public interface IHelloWorldNewService extends ICommonService<HelloWorldNew> {
 
+    void test10();
+
+    void test11();
+
+    void test20();
+
+    void test21();
+
+    void test22();
+
+    void test30();
+
+    void test31();
+
+    void test32();
+
+    void test40();
+
+    void test41();
+
 }

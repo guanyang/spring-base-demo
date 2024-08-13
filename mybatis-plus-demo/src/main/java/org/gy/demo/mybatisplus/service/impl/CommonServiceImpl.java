@@ -21,6 +21,7 @@ public class CommonServiceImpl<M extends CommonMapper<T>, T> extends ServiceImpl
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateBatchByWrapper(Collection<T> entityList, Function<T, LambdaQueryWrapper<T>> wrapperFunction,
         int batchSize) {
         String sqlStatement = getSqlStatement(SqlMethod.UPDATE);
