@@ -4,6 +4,8 @@ import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.demo.mybatisplus.entity.HelloWorldNew;
 import org.gy.demo.mybatisplus.mapper.HelloWorldNewMapper;
+import org.gy.demo.mybatisplus.model.TestRequest;
+import org.gy.demo.mybatisplus.model.TestResponse;
 import org.gy.demo.mybatisplus.service.IHelloWorldNewService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -109,6 +111,14 @@ public class HelloWorldNewServiceImpl extends CommonServiceImpl<HelloWorldNewMap
     public void test41() {
         insertTest("test41");
         throw new RuntimeException("test41抛出运行异常");
+    }
+
+    @Override
+    public TestResponse hello(TestRequest request) {
+        TestResponse response = new TestResponse();
+        response.setName(request.getName());
+        response.setAge(request.getAge());
+        return response;
     }
 
     private void insertTest(String desc) {

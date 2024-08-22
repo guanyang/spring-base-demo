@@ -1,6 +1,11 @@
 package org.gy.demo.mybatisplus.service;
 
 import org.gy.demo.mybatisplus.entity.HelloWorldNew;
+import org.gy.demo.mybatisplus.model.TestRequest;
+import org.gy.demo.mybatisplus.model.TestResponse;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -10,6 +15,7 @@ import org.gy.demo.mybatisplus.entity.HelloWorldNew;
  * @author gy
  * @since 2023-07-14
  */
+@Validated
 public interface IHelloWorldNewService extends ICommonService<HelloWorldNew> {
 
     void test10();
@@ -31,5 +37,7 @@ public interface IHelloWorldNewService extends ICommonService<HelloWorldNew> {
     void test40();
 
     void test41();
+
+    TestResponse hello(@Valid TestRequest request);
 
 }

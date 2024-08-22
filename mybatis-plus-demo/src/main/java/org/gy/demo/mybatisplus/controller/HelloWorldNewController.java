@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Properties;
 import javax.annotation.Resource;
 import org.gy.demo.mybatisplus.entity.HelloWorldNew;
+import org.gy.demo.mybatisplus.model.TestRequest;
+import org.gy.demo.mybatisplus.model.TestResponse;
 import org.gy.demo.mybatisplus.service.IHelloWorldNewService;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
@@ -88,6 +90,11 @@ public class HelloWorldNewController {
         HikariConfig config = new HikariConfig(object);
         System.out.println(config);
 
+    }
+
+    @GetMapping("/testValid")
+    public ResponseEntity<TestResponse> hello(TestRequest request) {
+        return ResponseEntity.ok(helloWorldNewService.hello(request));
     }
 
 }

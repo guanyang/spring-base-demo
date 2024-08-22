@@ -72,6 +72,14 @@
 
       <dependency>
         <groupId>org.gy.framework</groupId>
+        <artifactId>spring-base-parent</artifactId>
+        <version>${spring.base.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.gy.framework</groupId>
         <artifactId>spring-base-core</artifactId>
         <version>${spring.base.version}</version>
       </dependency>
