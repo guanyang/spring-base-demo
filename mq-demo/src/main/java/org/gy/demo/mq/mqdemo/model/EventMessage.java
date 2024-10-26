@@ -1,5 +1,6 @@
 package org.gy.demo.mq.mqdemo.model;
 
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,9 @@ import lombok.experimental.Accessors;
 public class EventMessage<T> implements Serializable {
 
     private static final long serialVersionUID = -8059102092489413340L;
+
+    private String requestId = IdUtil.simpleUUID();
+
     /**
      * 事件毫秒时间戳
      */

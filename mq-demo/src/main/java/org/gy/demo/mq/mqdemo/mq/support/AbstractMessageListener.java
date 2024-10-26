@@ -3,8 +3,10 @@ package org.gy.demo.mq.mqdemo.mq.support;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.gy.demo.mq.mqdemo.executor.EventMessageDispatchService;
 import org.gy.demo.mq.mqdemo.model.EventStringMessage;
@@ -62,14 +64,8 @@ public abstract class AbstractMessageListener {
             return;
         }
         log.info("[MessageListener]消息数据: msgId={},msgBody={}", msgId, msgBody);
-//        String bizKey = event.getBizKey();
-//        // 如果业务key为空，不做幂等校验
-//        if (StrUtil.isBlank(bizKey)) {
-//            eventMessageDispatchService.execute(event);
-//            return;
-//        }
-        //如果没有传bizKey，则已msgId作为幂等key
-        String idempotentKey = StrUtil.isNotBlank(eventMessage.getBizKey()) ? eventMessage.getBizKey() : msgId;
+
+        String idempotentKey = getUniqueKey(eventMessage);
         String code = String.valueOf(eventMessage.getEventType().getCode());
         String redisKey = RedisCacheKey.getKey(RedisCacheKey.CACHE_ROCKETMQ_IDEMPOTENT_KEY, code, idempotentKey);
         DistributedLock lock = new RedisDistributedLock(stringRedisTemplate, redisKey, getExpireTime());
@@ -85,6 +81,12 @@ public abstract class AbstractMessageListener {
             lock.unlock();
             throw e;
         }
+    }
+
+
+    private String getUniqueKey(EventStringMessage eventMessage) {
+        //如果没有传bizKey，则已requestId作为幂等key
+        return Optional.ofNullable(eventMessage.getBizKey()).filter(StringUtils::isNotBlank).orElseGet(eventMessage::getRequestId);
     }
 
 }

@@ -1,7 +1,7 @@
 package org.gy.demo.mq.mqdemo.controller;
 
 
-import javax.annotation.Resource;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.client.producer.TransactionSendResult;
@@ -12,6 +12,9 @@ import org.gy.framework.core.dto.Response;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author gy
@@ -27,15 +30,15 @@ public class MsgController {
     //普通消息测试
     @GetMapping("/demoMsg")
     public Response<Void> demoMsg(int total) {
+        List<EventMessage<String>> list = Lists.newArrayList();
         for (int i = 0; i < total; i++) {
             String msg = "msg" + i;
-//            String bizKey = "bizKey" + i;
-//            EventMessage<String> event = EventMessage.of(EventType.DEMO_EVENT, msg, bizKey);
             EventMessage<String> event = EventMessage.of(EventType.DEMO_EVENT, msg);
-            log.info("demoMsg发送消息开始：req={}", event);
-            SendResult sendResult = eventMessageSendService.sendNormalMessage(event);
-            log.info("demoMsg发送消息结束：res={}", sendResult);
+            list.add(event);
         }
+        log.info("demoMsg发送消息开始：req={}", list);
+        eventMessageSendService.sendNormalMessageAsync(list);
+        log.info("demoMsg发送消息结束");
         return Response.asSuccess();
     }
 
