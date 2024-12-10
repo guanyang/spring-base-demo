@@ -23,7 +23,7 @@
     <module>vertx-springboot-demo</module>
     <module>java-chassis-demo</module>
     <module>http-demo</module>
-    <module>quarkus-demo</module>
+<!--    <module>quarkus-demo</module>-->
     <module>elasticsearch-demo</module>
   </modules>
   <properties>
