@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8080
   tomcat:
     max-threads: 100
     min-spare-threads: 10
@@ -10,7 +10,7 @@ spring:
   profiles:
     active: dev
   redis:
-    host: 127.0.0.1
+    host: dev.redis
     port: 6379
     password:
     lettuce:

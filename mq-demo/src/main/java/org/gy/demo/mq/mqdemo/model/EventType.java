@@ -16,7 +16,9 @@ import org.gy.framework.core.support.IStdEnum;
 public enum EventType implements IStdEnum<Integer> {
 
     //消息事件类型
-    DEMO_EVENT(0, "示例事件");
+    DEMO_EVENT(0, "示例事件"),
+
+    DYNAMIC_DEMO_EVENT(1, "动态示例事件");
 
     private final Integer code;
 

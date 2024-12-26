@@ -1,12 +1,13 @@
 package org.gy.demo.mq.mqdemo.model;
 
 import cn.hutool.core.util.IdUtil;
-import com.alibaba.fastjson.JSON;
-import java.io.Serializable;
+import com.alibaba.fastjson2.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * 消息事件封装
@@ -64,6 +65,11 @@ public class EventMessage<T> implements Serializable {
         eventMessage.bizKey = bizKey;
         eventMessage.data = data;
         return eventMessage;
+    }
+
+    public void reset() {
+        this.requestId = IdUtil.simpleUUID();
+        this.timestamp = System.currentTimeMillis();
     }
 
     @Override

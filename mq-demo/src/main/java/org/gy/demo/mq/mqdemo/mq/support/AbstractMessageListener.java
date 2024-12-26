@@ -1,20 +1,24 @@
 package org.gy.demo.mq.mqdemo.mq.support;
 
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.gy.demo.mq.mqdemo.executor.EventMessageDispatchService;
-import org.gy.demo.mq.mqdemo.model.EventStringMessage;
+import org.gy.demo.mq.mqdemo.executor.EventMessageService;
+import org.gy.demo.mq.mqdemo.model.EventLogContext;
+import org.gy.demo.mq.mqdemo.model.EventMessage;
+import org.gy.demo.mq.mqdemo.model.EventMessageDispatchResult;
 import org.gy.demo.mq.mqdemo.redis.RedisCacheKey;
+import org.gy.framework.core.util.JsonUtils;
 import org.gy.framework.lock.core.DistributedLock;
 import org.gy.framework.lock.core.support.RedisDistributedLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
+
+import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Optional;
 
 /**
  * @author gy
@@ -25,7 +29,7 @@ public abstract class AbstractMessageListener {
     @Value("${demoConfig.idempotent.expireTime:7200}")
     private int expireTime;
 
-    @Value("${demoConfig.retryTimes:6}")
+    @Value("${demoConfig.retryTimes:1}")
     private int retryTimes;
 
     @Resource
@@ -42,23 +46,10 @@ public abstract class AbstractMessageListener {
         return expireTime;
     }
 
-    protected void messageHandler(MessageExt msg) {
+    protected void messageHandler(MessageExt msg) throws Throwable {
         String msgId = msg.getMsgId();
         String msgBody = new String(msg.getBody(), StandardCharsets.UTF_8);
-        int retryTimes = getRetryTimes();
-        if (retryTimes > 0 && msg.getReconsumeTimes() > retryTimes) {
-            // 重试次数超过限制，不再处理，后续可以记录异常表或告警处理
-            log.warn("[MessageListener]消息重试次数超过限制: msgId={},msgBody={},retryTimes={}", msgId, msgBody,
-                retryTimes);
-            return;
-        }
-        EventStringMessage eventMessage;
-        try {
-            eventMessage = JSON.parseObject(msgBody, EventStringMessage.class);
-        } catch (Exception e) {
-            log.warn("[MessageListener]消息解析异常: msgId={},msgBody={}.", msgId, msgBody, e);
-            return;
-        }
+        EventMessage<?> eventMessage = JsonUtils.toObject(msgBody, EventMessage.class);
         if (eventMessage == null || eventMessage.getEventType() == null) {
             log.warn("[MessageListener]消息参数错误: msgId={},msgBody={}", msgId, msgBody);
             return;
@@ -74,17 +65,48 @@ public abstract class AbstractMessageListener {
             log.warn("[MessageListener]消息已经处理: redisKey={},msgId={},msgBody={}", redisKey, msgId, msgBody);
             return;
         }
-        try {
-            eventMessageDispatchService.execute(eventMessage);
-        } catch (Throwable e) {
+        internalExecute(eventMessage, msg, lock);
+    }
+
+    private void internalExecute(EventMessage<?> eventMessage, MessageExt msg, DistributedLock lock) throws Throwable {
+        String msgId = msg.getMsgId();
+        EventLogContext<EventMessage<?>, Object> ctx = EventLogContext.builder().requestId(eventMessage.getRequestId()).request(eventMessage).build();
+        EventMessageDispatchResult dispatchResult = eventMessageDispatchService.execute(eventMessage);
+        if (dispatchResult.hasException()) {
             //释放幂等key，抛出原异常，方便下次重试处理
             lock.unlock();
-            throw e;
+            //异常重试处理
+            internalException(dispatchResult, msg);
+            ctx.setEx(dispatchResult.getEx());
+        } else {
+            ctx.setResponse(dispatchResult.getResult());
+        }
+        // 保存事件日志（异步）
+        EventLogContext.handleEventLog(Collections.singletonList(ctx));
+    }
+
+    private void internalException(EventMessageDispatchResult dispatchResult, MessageExt msg) throws Throwable {
+        Throwable ex = dispatchResult.getEx();
+        EventMessageService eventMessageService = dispatchResult.getService();
+        boolean supportRetry = Optional.ofNullable(eventMessageService).map(s -> s.supportRetry(ex)).orElse(false);
+
+        String msgId = msg.getMsgId();
+        String msgBody = new String(msg.getBody(), StandardCharsets.UTF_8);
+        if (!supportRetry) {
+            log.warn("[MessageListener]业务异常暂不支持重试: msgId={},msgBody={}", msgId, msgBody, ex);
+            return;
+        }
+        int retryTimes = getRetryTimes();
+        if (retryTimes > 0 && msg.getReconsumeTimes() > retryTimes) {
+            // 重试次数超过限制，不再处理，后续可以记录异常表或告警处理
+            log.warn("[MessageListener]消息重试次数超过限制: msgId={},msgBody={},retryTimes={}", msgId, msgBody, retryTimes, ex);
+        } else {
+            throw ex;
         }
     }
 
 
-    private String getUniqueKey(EventStringMessage eventMessage) {
+    private String getUniqueKey(EventMessage<?> eventMessage) {
         //如果没有传bizKey，则已requestId作为幂等key
         return Optional.ofNullable(eventMessage.getBizKey()).filter(StringUtils::isNotBlank).orElseGet(eventMessage::getRequestId);
     }

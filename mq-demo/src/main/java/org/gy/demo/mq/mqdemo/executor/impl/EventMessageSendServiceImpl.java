@@ -16,6 +16,7 @@ import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.gy.demo.mq.mqdemo.common.Action.BiFunctionAction;
 import org.gy.demo.mq.mqdemo.executor.EventMessageSendService;
+import org.gy.demo.mq.mqdemo.model.EventLogContext;
 import org.gy.demo.mq.mqdemo.model.EventMessage;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.RocketMQConfig;
 import org.gy.demo.mq.mqdemo.mq.RocketMqConfiguration.RocketMqManager;
@@ -136,7 +137,7 @@ public class EventMessageSendServiceImpl implements EventMessageSendService {
         } catch (Exception e) {
             //仅告警处理，后续考虑写入异常表，进行异步补偿处理
             log.error("[EventMessageSendService]发送异常", e);
-            throw new SysException(SYS_SERVICE_ERROR);
+            EventLogContext.handleEventLog(eventMessages, e);
         }
     }
 
@@ -200,7 +201,7 @@ public class EventMessageSendServiceImpl implements EventMessageSendService {
         return buildCallback(Lists.newArrayList(eventMessage));
     }
 
-    private <T> SendCallback buildCallback(Collection<EventMessage<T>> eventMessages) {
+    private <T> SendCallback buildCallback(List<EventMessage<T>> eventMessages) {
         return new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
@@ -211,6 +212,7 @@ public class EventMessageSendServiceImpl implements EventMessageSendService {
             public void onException(Throwable e) {
                 //仅告警处理，后续考虑写入异常表，进行异步补偿处理
                 log.error("[EventMessageSendService]发送失败", e);
+                EventLogContext.handleEventLog(eventMessages, e);
             }
         };
     }

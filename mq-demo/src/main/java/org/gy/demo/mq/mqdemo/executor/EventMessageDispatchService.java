@@ -1,12 +1,13 @@
 package org.gy.demo.mq.mqdemo.executor;
 
 
-import org.gy.demo.mq.mqdemo.model.EventStringMessage;
+import org.gy.demo.mq.mqdemo.model.EventMessage;
+import org.gy.demo.mq.mqdemo.model.EventMessageDispatchResult;
 
 /**
  * @author gy
  */
 public interface EventMessageDispatchService {
 
-    void execute(EventStringMessage eventMessage);
+    EventMessageDispatchResult execute(EventMessage<?> eventMessage);
 }

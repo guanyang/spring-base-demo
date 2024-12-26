@@ -2,7 +2,7 @@
 <configuration debug="false" scan="true" scanPeriod="30 seconds">
 
   <springProperty scope="context" name="logLevel" source="log.level" defaultValue="INFO"/>
-  <springProperty scope="context" name="logPath" source="log.path" defaultValue="/Users/gy/logs/applogs"/>
+  <springProperty scope="context" name="logPath" source="log.path" defaultValue="/Users/guanyang/logs/applogs"/>
   <springProperty name="APP_NAME" source="spring.application.name" defaultValue="None"/>
 
   <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
