@@ -31,9 +31,6 @@ public class Action {
         }
 
         static <T> void acceptQuietly(T t, ConsumerAction<T> action) {
-            if (t == null) {
-                return;
-            }
             try {
                 action.accept(t);
             } catch (Throwable ignore) {

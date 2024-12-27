@@ -1,10 +1,9 @@
 package org.gy.demo.mq.mqdemo.exception;
 
 
-import java.util.List;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+import cn.hutool.extra.servlet.ServletUtil;
+import com.fasterxml.jackson.databind.JsonMappingException.Reference;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.core.dto.Response;
 import org.gy.framework.core.exception.BizException;
@@ -12,10 +11,9 @@ import org.gy.framework.core.exception.CommonException;
 import org.gy.framework.lock.exception.DistributedLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -25,6 +23,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author gy
@@ -54,16 +58,11 @@ public class GlobalExceptionHandler {
      * 处理所有接口数据验证异常
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public Response<Void> handleConstraintViolationException(ConstraintViolationException e) {
-        Set<ConstraintViolation<?>> errSet = e.getConstraintViolations();
-        StringBuilder strBuilder = new StringBuilder();
-        for (ConstraintViolation<?> constraintViolation : errSet) {
-            strBuilder.append(constraintViolation.getMessage());
-        }
-        String msg = strBuilder.toString();
-        log.warn("接口数据验证异常: {}", msg, e);
+    public Response<Void> handleConstraintViolationException(HttpServletRequest request, ConstraintViolationException e) {
+        Set<ConstraintViolation<?>> constraintViolations = e.getConstraintViolations();
+        String msg = constraintViolations.stream().findFirst().map(item -> String.format("【%s】%s", item.getPropertyPath(), item.getMessage())).orElseGet(() -> "Request parameter format error");
+        log.warn("ConstraintViolation fail: url={}, msg={}", request.getRequestURI(), msg, e);
         return Response.asError(HttpStatus.BAD_REQUEST.value(), msg);
-
     }
 
     /**
@@ -159,24 +158,22 @@ public class GlobalExceptionHandler {
         return Response.asError(e.getCode(), e.getMessage());
     }
 
+    private String buildErrMsg(HttpMessageConversionException e) {
+        Throwable cause = e.getCause();
+        if (cause instanceof InvalidFormatException) {
+            String fieldName = Optional.ofNullable(((InvalidFormatException) cause).getPath()).flatMap(list -> list.stream().findFirst()).map(Reference::getFieldName).orElseGet(() -> "Unknown");
+            return String.format("【%s】%s", fieldName, "参数格式转换异常");
+        } else {
+            return cause.getMessage();
+        }
+    }
+
 
     private String buildErrMsg(BindingResult br) {
-        List<ObjectError> errList = br.getAllErrors();
-        StringBuilder strBuilder = new StringBuilder();
-
-        for (ObjectError error : errList) {
-            if (strBuilder.length() > 0) {
-                strBuilder.append(" | ");
-            }
-            if (error instanceof FieldError) {
-                strBuilder.append(((FieldError) error).getField());
-            }
-            strBuilder.append(error.getDefaultMessage());
-        }
-        if (strBuilder.length() > 90) {
-            return "请求参数格式错误";
-        }
-        return strBuilder.toString();
+        return Optional.ofNullable(br).map(BindingResult::getFieldError).map(fieldError -> {
+            String msg = Optional.ofNullable(fieldError.getDefaultMessage()).filter(s -> s.length() < 80).orElseGet(() -> "参数数据类型转换异常");
+            return String.format("【%s】%s", fieldError.getField(), msg);
+        }).orElseGet(() -> "请求参数格式错误");
     }
 
 }
