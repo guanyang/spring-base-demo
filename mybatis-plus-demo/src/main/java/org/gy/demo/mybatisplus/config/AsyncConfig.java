@@ -39,7 +39,7 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setWaitForTasksToCompleteOnShutdown(true);
         // 设置线程池中任务的等待时间，如果超过这个时候还没有销毁就强制销毁，以确保应用最后能够被关闭，而不是阻塞住
         executor.setAwaitTerminationSeconds(60);
-//        executor.setTaskDecorator(new ContextCopyingDecorator());
+        executor.setTaskDecorator(new ContextCopyingDecorator());
         // 初始化
         executor.initialize();
         return executor;
