@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: dev
+  application:
+    name: kafka-demo
   kafka:
     topic: DemoKafkaTopicDev
     bootstrap-servers:
@@ -25,6 +29,7 @@ spring:
       properties:
         # \u6279\u91CF\u53D1\u9001\uFF0C\u5EF6\u8FDF\u4E3A1\u6BEB\u79D2\uFF0C\u542F\u7528\u8BE5\u529F\u80FD\u80FD\u6709\u6548\u51CF\u5C11\u751F\u4EA7\u8005\u53D1\u9001\u6D88\u606F\u6B21\u6570\uFF0C\u4ECE\u800C\u63D0\u9AD8\u5E76\u53D1\u91CF
         linger.ms: 1
+        interceptor.classes: org.gy.demo.kafka.kafkademo.listener.support.ProducerContextInterceptor
         # \u5BF9\u53D1\u9001\u7684\u6570\u636E\u8FDB\u884C\u538B\u7F29 \u652F\u6301\u538B\u7F29\u7C7B\u578B\uFF1Anone\u3001gzip\u3001snappy\u3001lz4 \u548C zstd\u3002
 #      compression-type: "snappy"
       # \u5F00\u542F\u4E8B\u52A1
