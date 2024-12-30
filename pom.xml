@@ -25,6 +25,7 @@
     <module>http-demo</module>
 <!--    <module>quarkus-demo</module>-->
     <module>elasticsearch-demo</module>
+    <module>kafka-demo</module>
   </modules>
   <properties>
     <java.version>1.8</java.version>
