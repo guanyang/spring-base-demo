@@ -41,10 +41,10 @@ public class DemoConfig {
         return errorHandler;
     }
 
-    @Bean
-    public RecordInterceptor<Object, Object> recordInterceptor() {
-        return new ConsumerContextInterceptor();
-    }
+//    @Bean
+//    public RecordInterceptor<Object, Object> recordInterceptor() {
+//        return new ConsumerContextInterceptor();
+//    }
 
 //    @Bean
 //    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(ConsumerFactory<String, Object> consumerFactory, DefaultErrorHandler errorHandler) {

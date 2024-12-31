@@ -14,13 +14,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    @Bean
-    public FilterRegistrationBean<TraceFilter> traceFilterRegistration() {
-        FilterRegistrationBean<TraceFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new TraceFilter());
-        registrationBean.addUrlPatterns("/*");
-        registrationBean.setName("traceFilter");
-        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return registrationBean;
-    }
+//    @Bean
+//    public FilterRegistrationBean<TraceFilter> traceFilterRegistration() {
+//        FilterRegistrationBean<TraceFilter> registrationBean = new FilterRegistrationBean<>();
+//        registrationBean.setFilter(new TraceFilter());
+//        registrationBean.addUrlPatterns("/*");
+//        registrationBean.setName("traceFilter");
+//        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+//        return registrationBean;
+//    }
 }
