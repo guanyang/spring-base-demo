@@ -36,6 +36,7 @@ public class DemoConfig {
 
         // 配置哪些异常不触发重试
 //        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
+        errorHandler.setCommitRecovered(true);
 
         return errorHandler;
     }
