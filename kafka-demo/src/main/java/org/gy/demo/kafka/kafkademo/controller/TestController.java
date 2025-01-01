@@ -1,8 +1,11 @@
 package org.gy.demo.kafka.kafkademo.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.gy.framework.core.dto.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,11 +27,11 @@ public class TestController {
     private String topic;
 
     @GetMapping("/send")
-    public Object sendMessage(String msg) {
+    public Response<Void> sendMessage(String msg) {
         log.info("发送消息：{}", msg);
         kafkaTemplate.send(topic, msg);
 //         kafkaTemplate.send(topic, 1, "2" , msg);
-        return "success";
+        return Response.asSuccess();
     }
 
 }

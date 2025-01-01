@@ -1,5 +1,7 @@
 package org.gy.demo.mq.mqdemo.mq;
 
+import brave.Span;
+import brave.Tracing;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -9,6 +11,7 @@ import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.exception.RemotingException;
+import org.gy.demo.mq.mqdemo.mq.support.MessageTraceUtils;
 import org.gy.demo.mq.mqdemo.trace.TraceEnum;
 import org.slf4j.MDC;
 
@@ -196,8 +199,9 @@ public class DefaultMQProducerWrapper extends DefaultMQProducer {
         if (msg == null) {
             return null;
         }
-        wrapMessage(msg, TraceEnum.TRACE);
-        wrapMessage(msg, TraceEnum.SPAN);
+//        wrapMessage(msg, TraceEnum.TRACE);
+//        wrapMessage(msg, TraceEnum.SPAN);
+        MessageTraceUtils.wrapTrace(msg);
         return msg;
     }
 

@@ -1,7 +1,6 @@
 package org.gy.demo.mq.mqdemo.mq;
 
 import cn.hutool.extra.spring.SpringUtil;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -9,7 +8,11 @@ import org.apache.rocketmq.client.producer.TransactionListener;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.Producer;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.ProducerType;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.RocketMQConfig;
+import org.gy.demo.mq.mqdemo.mq.support.EndTransactionTracingHookImpl;
+import org.gy.demo.mq.mqdemo.mq.support.SendMessageTracingHookImpl;
 import org.springframework.util.Assert;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 功能描述：
@@ -100,7 +103,9 @@ public class RocketMqProducer {
     }
 
     protected DefaultMQProducer buildNormalProducer(Producer producerConfig) {
-        return new DefaultMQProducerWrapper(producerConfig.getGroupName());
+        DefaultMQProducerWrapper producerWrapper = new DefaultMQProducerWrapper(producerConfig.getGroupName());
+        producerWrapper.getDefaultMQProducerImpl().registerSendMessageHook(new SendMessageTracingHookImpl());
+        return producerWrapper;
     }
 
     protected DefaultMQProducer buildTransactionProducer(Producer producerConfig) {
@@ -108,6 +113,7 @@ public class RocketMqProducer {
         TransactionMQProducerWrapper transactionProducer = new TransactionMQProducerWrapper(
             producerConfig.getGroupName());
         transactionProducer.setTransactionListener(transactionListener);
+        transactionProducer.getDefaultMQProducerImpl().registerEndTransactionHook(new EndTransactionTracingHookImpl());
         return transactionProducer;
     }
 

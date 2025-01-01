@@ -1,7 +1,6 @@
 package org.gy.demo.mq.mqdemo.mq;
 
 import cn.hutool.extra.spring.SpringUtil;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -10,7 +9,10 @@ import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.Consumer;
 import org.gy.demo.mq.mqdemo.mq.RocketMQProperties.RocketMQConfig;
+import org.gy.demo.mq.mqdemo.mq.support.ConsumeMessageTracingHookImpl;
 import org.springframework.util.Assert;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 功能描述：
@@ -105,7 +107,7 @@ public class RocketMqConsumer {
 
         ConsumeFromWhere consumeFromWhere = ConsumeFromWhere.valueOf(consumerConfig.getConsumeFromWhere());
         consumer.setConsumeFromWhere(consumeFromWhere);
-        consumer.registerConsumeMessageHook(new TraceConsumeMessageHook());
+        consumer.registerConsumeMessageHook(new ConsumeMessageTracingHookImpl());
     }
 
     protected MessageListener getMessageListener(Consumer consumerConfig) {

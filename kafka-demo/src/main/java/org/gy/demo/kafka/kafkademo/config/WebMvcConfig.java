@@ -1,10 +1,9 @@
 package org.gy.demo.kafka.kafkademo.config;
 
-import org.gy.demo.kafka.kafkademo.trace.TraceFilter;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.Bean;
+import org.gy.demo.kafka.kafkademo.trace.TraceEnum;
+import org.gy.framework.core.trace.TraceUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
@@ -12,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author gy
  */
 @Configuration
-public class WebMvcConfig implements WebMvcConfigurer {
+public class WebMvcConfig implements WebMvcConfigurer, InitializingBean {
 
 //    @Bean
 //    public FilterRegistrationBean<TraceFilter> traceFilterRegistration() {
@@ -23,4 +22,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 //        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 //        return registrationBean;
 //    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        TraceUtils.setLogTraceKey(TraceEnum.TRACE.getTraceName());
+    }
 }

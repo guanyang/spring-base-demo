@@ -1,26 +1,36 @@
 package org.gy.demo.mq.mqdemo.mq;
 
-import java.util.function.Consumer;
+import brave.ScopedSpan;
+import brave.Tracer;
+import brave.Tracing;
+import brave.propagation.TraceContext;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
-import org.gy.demo.mq.mqdemo.trace.TraceContext;
-import org.gy.demo.mq.mqdemo.trace.TraceEnum;
-import org.slf4j.MDC;
+
+import java.util.function.Consumer;
 
 /**
  * @author gy
  */
 public class SendCallbackWrapper implements SendCallback {
 
+    private final static String SPAN_NAME = "SendCallbackWrapper";
+
     private final SendCallback sendCallback;
 
-    private final String traceId;
+//    private final String traceId;
+
+    private final TraceContext traceContext;
+
+    private final Tracer tracer;
 
     private final transient Thread callThread;
 
     private SendCallbackWrapper(SendCallback sendCallback) {
         this.sendCallback = sendCallback;
-        this.traceId = MDC.get(TraceEnum.TRACE.getName());
+//        this.traceId = MDC.get(TraceEnum.TRACE.getName());
+        this.traceContext = Tracing.currentTracer().currentSpan().context();
+        this.tracer = Tracing.currentTracer();
         this.callThread = Thread.currentThread();
     }
 
@@ -44,11 +54,22 @@ public class SendCallbackWrapper implements SendCallback {
             consumer.accept(t);
             return;
         }
-        TraceContext.setTrace(traceId);
+
+        ScopedSpan span = tracer.startScopedSpanWithParent(SPAN_NAME, traceContext);
         try {
             consumer.accept(t);
+        } catch (Throwable e) {
+            span.error(e);
+            throw e;
         } finally {
-            TraceContext.clearTrace();
+            span.finish();
         }
+
+//        TraceContext.setTrace(traceId);
+//        try {
+//            consumer.accept(t);
+//        } finally {
+//            TraceContext.clearTrace();
+//        }
     }
 }
