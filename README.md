@@ -1,8 +1,11 @@
 ## spring-base-demo
 
 ### Quickstart Guide
+#### 相关依赖
+- 本工程依赖[guanyang/spring-base-parent](https://github.com/guanyang/spring-base-parent) 相关组件
+- 将`spring-base-parent`下载到本地，执行`mvn clean install -Dmaven.test.skip=true`，将相关组件生成到本地
 
-可以通过根目录`main.sh`快速使用：
+#### 可以通过根目录`main.sh`快速使用
 
 ```
 Usage:  $0 COMMAND [arg...]
