@@ -26,6 +26,7 @@ management:
           enabled: true
           base-url: http://dev.pushgateway:19091
           push-rate: 10s
+          shutdown-operation: push
       jmx:
         enabled: true
     tags:
