@@ -15,71 +15,70 @@ spring:
     bootstrap-servers:
       - dev.kafka:9094
     producer:
-      # \u53D1\u751F\u9519\u8BEF\u540E\uFF0C\u6D88\u606F\u91CD\u53D1\u7684\u6B21\u6570 \uFF0C0\u4E3A\u4E0D\u542F\u7528\u91CD\u8BD5\u673A\u5236\uFF0C\u9ED8\u8BA4int\u6700\u5927\u503C
+      # 发生错误后，消息重发的次数，0 为不启用重试机制，默认值为 int 最大值
       retries: 3
-      # \u5F53\u6709\u591A\u4E2A\u6D88\u606F\u9700\u8981\u88AB\u53D1\u9001\u5230\u7EDF\u4E00\u5206\u533A\u65F6\uFF0C\u751F\u4EA7\u8005\u4F1A\u628A\u4ED6\u4EEC\u653E\u5728\u540C\u4E00\u6279\u6B21\u91CC\u3002\u8BE5\u53C2\u6570\u6307\u5B9A\u4E86\u4E00\u4E2A\u6279\u6B21\u53EF\u4EE5\u4F7F\u7528\u7684\u5185\u5B58\u5927\u5C0F\uFF0C\u6309\u7167\u5B57\u8282\u6570\u8BA1\u7B97
-#      batch-size: 16384
-      # \u751F\u4EA7\u8005\u53EF\u4EE5\u4F7F\u7528\u7684\u603B\u5185\u5B58\u5B57\u8282\u6765\u7F13\u51B2\u7B49\u5F85\u53D1\u9001\u5230\u670D\u52A1\u5668\u7684\u8BB0\u5F55
-#      buffer-memory: 33554432
-      # \u952E\u7684\u5E8F\u5217\u5316\u65B9\u5F0F
+      # 当有多个消息需要被发送到统一分区时，生产者会将它们放在同一批次里。该参数指定一个批次可以使用的内存大小，按字节数计算
+      # batch-size: 16384
+      # 生产者可以使用的总内存字节来缓冲等待发送到服务器的记录
+      # buffer-memory: 33554432
+      # 键的序列化方式
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      # \u503C\u7684\u5E8F\u5217\u5316\u65B9\u5F0F
+      # 值的序列化方式
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      # acks \u5E94\u7B54\u673A\u5236
-      # acks=0 \uFF1A \u751F\u4EA7\u8005\u53D1\u9001\u8FC7\u6765\u7684\u6570\u636E\uFF0C\u4E0D\u9700\u8981\u7B49\u6570\u636E\u843D\u76D8\u5E94\u7B54\u3002
-      # acks=1 \uFF1A \u751F\u4EA7\u8005\u53D1\u9001\u8FC7\u6765\u7684\u6570\u636E\uFF0CLeader \u6536\u5230\u6570\u636E\u540E\u5E94\u7B54\u3002
-      # acks=all \uFF1A\u53EA\u6709\u5F53\u6240\u6709\u53C2\u4E0E\u590D\u5236\u7684\u8282\u70B9\u5168\u90E8\u6536\u5230\u6D88\u606F\u65F6\uFF0C\u751F\u4EA7\u8005\u624D\u4F1A\u6536\u5230\u4E00\u4E2A\u6765\u81EA\u670D\u52A1\u5668\u7684\u6210\u529F\u54CD\u5E94\u3002
+      # acks 应答机制
+      # acks=0：生产者发送数据后，不需要等待数据落盘应答。
+      # acks=1：生产者发送数据后，Leader 收到数据后应答。
+      # acks=all：只有当所有参与复制的节点全部收到消息时，生产者才会收到一个来自服务器的成功响应。
       acks: -1
       properties:
-        # \u6279\u91CF\u53D1\u9001\uFF0C\u5EF6\u8FDF\u4E3A1\u6BEB\u79D2\uFF0C\u542F\u7528\u8BE5\u529F\u80FD\u80FD\u6709\u6548\u51CF\u5C11\u751F\u4EA7\u8005\u53D1\u9001\u6D88\u606F\u6B21\u6570\uFF0C\u4ECE\u800C\u63D0\u9AD8\u5E76\u53D1\u91CF
+        # 批量发送，延迟为 1 毫秒，启用该功能能有效减少生产者发送消息次数，从而提高并发量
         linger.ms: 1
-#        interceptor.classes: org.gy.demo.kafka.kafkademo.listener.support.ProducerContextInterceptor
-        # \u5BF9\u53D1\u9001\u7684\u6570\u636E\u8FDB\u884C\u538B\u7F29 \u652F\u6301\u538B\u7F29\u7C7B\u578B\uFF1Anone\u3001gzip\u3001snappy\u3001lz4 \u548C zstd\u3002
-#      compression-type: "snappy"
-      # \u5F00\u542F\u4E8B\u52A1
-#      transaction-id-prefix: myapp
+        # 对发送的数据进行压缩，支持压缩类型：none、gzip、snappy、lz4 和 zstd
+        # compression-type: "snappy"
+        # 开启事务
+        # transaction-id-prefix: myapp
     consumer:
       group-id: demo_kafka_test_dev
-      # \u662F\u5426\u81EA\u52A8\u63D0\u4EA4\u504F\u79FB\u91CF\uFF0C\u9ED8\u8BA4\u503C\u662Ftrue,\u4E3A\u4E86\u907F\u514D\u51FA\u73B0\u91CD\u590D\u6570\u636E\u548C\u6570\u636E\u4E22\u5931\uFF0C\u53EF\u4EE5\u628A\u5B83\u8BBE\u7F6E\u4E3Afalse,\u7136\u540E\u624B\u52A8\u63D0\u4EA4\u504F\u79FB\u91CF
+      # 是否自动提交偏移量，默认值是 true，为了避免出现重复数据和数据丢失，可以将其设置为 false，然后手动提交偏移量
       enable-auto-commit: false
-      # \u81EA\u52A8\u63D0\u4EA4\u7684\u65F6\u95F4\u95F4\u9694 \u5728Spring Boot 2.x \u7248\u672C\u4E2D\u8FD9\u91CC\u91C7\u7528\u7684\u503C\u7684\u7C7B\u578BDuration \u9700\u8981\u7B26\u5408\u7279\u5B9A\u7684\u683C\u5F0F\uFF0C\u59821S\uFF0C1M\uFF0C2H\uFF0C5D
+      # 自动提交的时间间隔，在 Spring Boot 2.x 版本中，这里采用的值的类型为 Duration，需要符合特定的格式，例如 1S，1M，2H，5D
       auto-commit-interval: 1s
-      # \u8BE5\u5C5E\u6027\u6307\u5B9A\u4E86\u6D88\u8D39\u8005\u5728\u8BFB\u53D6\u4E00\u4E2A\u6CA1\u6709\u504F\u79FB\u91CF\u7684\u5206\u533A\u6216\u8005\u504F\u79FB\u91CF\u65E0\u6548\u7684\u60C5\u51B5\u4E0B\u8BE5\u4F5C\u4F55\u5904\u7406\uFF1A
-      # latest\uFF08\u9ED8\u8BA4\u503C\uFF09\u5728\u504F\u79FB\u91CF\u65E0\u6548\u7684\u60C5\u51B5\u4E0B\uFF0C\u6D88\u8D39\u8005\u5C06\u4ECE\u6700\u65B0\u7684\u8BB0\u5F55\u5F00\u59CB\u8BFB\u53D6\u6570\u636E\uFF08\u5728\u6D88\u8D39\u8005\u542F\u52A8\u4E4B\u540E\u751F\u6210\u7684\u8BB0\u5F55\uFF09
-      # earliest \uFF1A\u5728\u504F\u79FB\u91CF\u65E0\u6548\u7684\u60C5\u51B5\u4E0B\uFF0C\u6D88\u8D39\u8005\u5C06\u4ECE\u8D77\u59CB\u4F4D\u7F6E\u8BFB\u53D6\u5206\u533A\u7684\u8BB0\u5F55
-      # none\uFF08\u5982\u679C\u65E0offset\u5C31\u629B\u51FA\u5F02\u5E38\uFF09
+      # 该属性指定了消费者在读取一个没有偏移量的分区或者偏移量无效的情况下该作何处理：
+      # latest（默认值）：在偏移量无效的情况下，消费者将从最新的记录开始读取数据（在消费者启动之后生成的记录）
+      # earliest：在偏移量无效的情况下，消费者将从起始位置读取分区的记录
+      # none：如果无 offset 就抛出异常
       auto-offset-reset: latest
-      # \u952E\u7684\u53CD\u5E8F\u5217\u5316\u65B9\u5F0F
+      # 键的反序列化方式
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      # \u503C\u7684\u53CD\u5E8F\u5217\u5316\u65B9\u5F0F
+      # 值的反序列化方式
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      # \u8FD9\u4E2A\u53C2\u6570\u5141\u8BB8\u6D88\u8D39\u8005\u6307\u5B9A\u4ECEbroker\u8BFB\u53D6\u6D88\u606F\u65F6\u6700\u5C0F\u7684Payload\u7684\u5B57\u8282\u6570\u3002\u5F53\u6D88\u8D39\u8005\u4ECEbroker\u8BFB\u53D6\u6D88\u606F\u65F6\uFF0C\u5982\u679C\u6570\u636E\u5B57\u8282\u6570\u5C0F\u4E8E\u8FD9\u4E2A\u9608\u503C\uFF0Cbroker\u4F1A\u7B49\u5F85\u76F4\u5230\u6709\u8DB3\u591F\u7684\u6570\u636E\uFF0C\u7136\u540E\u624D\u8FD4\u56DE\u7ED9\u6D88\u8D39\u8005\u3002\u5BF9\u4E8E\u5199\u5165\u91CF\u4E0D\u9AD8\u7684\u4E3B\u9898\u6765\u8BF4\uFF0C\u8FD9\u4E2A\u53C2\u6570\u53EF\u4EE5\u51CF\u5C11broker\u548C\u6D88\u8D39\u8005\u7684\u538B\u529B\uFF0C\u56E0\u4E3A\u51CF\u5C11\u4E86\u5F80\u8FD4\u7684\u65F6\u95F4\u3002\u800C\u5BF9\u4E8E\u6709\u5927\u91CF\u6D88\u8D39\u8005\u7684\u4E3B\u9898\u6765\u8BF4\uFF0C\u5219\u53EF\u4EE5\u660E\u663E\u51CF\u8F7Bbroker\u538B\u529B\u3002
-      fetch-min-size: 1 #\u9ED8\u8BA4\u503C\uFF1A 1
-      #\u4E0A\u9762\u7684fetch.min.bytes\u53C2\u6570\u6307\u5B9A\u4E86\u6D88\u8D39\u8005\u8BFB\u53D6\u7684\u6700\u5C0F\u6570\u636E\u91CF\uFF0C\u800C\u8FD9\u4E2A\u53C2\u6570\u5219\u6307\u5B9A\u4E86\u6D88\u8D39\u8005\u8BFB\u53D6\u65F6\u6700\u957F\u7B49\u5F85\u65F6\u95F4\uFF0C\u4ECE\u800C\u907F\u514D\u957F\u65F6\u95F4\u963B\u585E\u3002\u8FD9\u4E2A\u53C2\u6570\u9ED8\u8BA4\u4E3A500ms\u3002
+      # 这个参数允许消费者指定从 broker 读取消息时最小的 Payload 的字节数。当消费者从 broker 读取消息时，如果数据字节数小于这个阈值，broker 会等待直到有足够的数据，然后才返回给消费者。
+      fetch-min-size: 1 # 默认值： 1
+      # 上面的 fetch.min.bytes 参数指定了消费者读取的最小数据量，而这个参数则指定了消费者读取时最长等待时间，从而避免长时间阻塞。该参数默认值为 500ms。
       fetch-max-wait: 500
-      # \u8FD9\u4E2A\u53C2\u6570\u63A7\u5236\u4E00\u4E2Apoll()\u8C03\u7528\u8FD4\u56DE\u7684\u8BB0\u5F55\u6570\uFF0C\u5373consumer\u6BCF\u6B21\u6279\u91CF\u62C9\u591A\u5C11\u6761\u6570\u636E\u3002
+      # 这个参数控制一个 poll() 调用返回的记录数，即消费者每次批量拉取多少条数据。
       max-poll-records: 500
 
     listener:
-      # \u5728\u76D1\u542C\u5668\u5BB9\u5668\u4E2D\u8FD0\u884C\u7684\u7EBF\u7A0B\u6570,\u521B\u5EFA\u591A\u5C11\u4E2Aconsumer\uFF0C\u503C\u5FC5\u987B\u5C0F\u4E8E\u7B49\u4E8EKafk Topic\u7684\u5206\u533A\u6570\u3002
-      concurrency: 1 # \u63A8\u8350\u8BBE\u7F6E\u4E3Atopic\u7684\u5206\u533A\u6570
-      # \u5F53\u6BCF\u4E00\u6761\u8BB0\u5F55\u88AB\u6D88\u8D39\u8005\u76D1\u542C\u5668\uFF08ListenerConsumer\uFF09\u5904\u7406\u4E4B\u540E\u63D0\u4EA4
-      # RECORD
-      # \u5F53\u6BCF\u4E00\u6279poll()\u7684\u6570\u636E\u88AB\u6D88\u8D39\u8005\u76D1\u542C\u5668\uFF08ListenerConsumer\uFF09\u5904\u7406\u4E4B\u540E\u63D0\u4EA4
-      # BATCH
-      # \u5F53\u6BCF\u4E00\u6279poll()\u7684\u6570\u636E\u88AB\u6D88\u8D39\u8005\u76D1\u542C\u5668\uFF08ListenerConsumer\uFF09\u5904\u7406\u4E4B\u540E\uFF0C\u8DDD\u79BB\u4E0A\u6B21\u63D0\u4EA4\u65F6\u95F4\u5927\u4E8ETIME\u65F6\u63D0\u4EA4
-      # TIME
-      # \u5F53\u6BCF\u4E00\u6279poll()\u7684\u6570\u636E\u88AB\u6D88\u8D39\u8005\u76D1\u542C\u5668\uFF08ListenerConsumer\uFF09\u5904\u7406\u4E4B\u540E\uFF0C\u88AB\u5904\u7406record\u6570\u91CF\u5927\u4E8E\u7B49\u4E8ECOUNT\u65F6\u63D0\u4EA4
-      # COUNT
-      # TIME |\u3000COUNT\u3000\u6709\u4E00\u4E2A\u6761\u4EF6\u6EE1\u8DB3\u65F6\u63D0\u4EA4
-      # COUNT_TIME
-      # \u5F53\u6BCF\u4E00\u6279poll()\u7684\u6570\u636E\u88AB\u6D88\u8D39\u8005\u76D1\u542C\u5668\uFF08ListenerConsumer\uFF09\u5904\u7406\u4E4B\u540E, \u624B\u52A8\u8C03\u7528Acknowledgment.acknowledge()\u540E\u63D0\u4EA4
-      # MANUAL
-      # \u624B\u52A8\u8C03\u7528Acknowledgment.acknowledge()\u540E\u7ACB\u5373\u63D0\u4EA4\uFF0C\u4E00\u822C\u4F7F\u7528\u8FD9\u79CD
-      # MANUAL_IMMEDIATE
-      #listner\u8D1F\u8D23ack\uFF0C\u6BCF\u8C03\u7528\u4E00\u6B21\uFF0C\u5C31\u7ACB\u5373commit
+      # 在监听器容器中运行的线程数，创建多少个 consumer，值必须小于等于 Kafka Topic 的分区数。
+      concurrency: 1 # 建议设置为 topic 的分区数
+      # 当每一条记录被消费者监听器（ListenerConsumer）处理之后提交
+      # RECORD：
+      # 当每一批 poll() 的数据被消费者监听器（ListenerConsumer）处理之后提交
+      # BATCH：
+      # 当每一批 poll() 的数据被消费者监听器（ListenerConsumer）处理之后，间隔时间大于等于 TIME 时提交
+      # TIME：
+      # 当每一批 poll() 的数据被消费者监听器（ListenerConsumer）处理之后，被处理的 record 数量大于等于 COUNT 时提交
+      # COUNT：
+      # TIME | COUNT 有一个条件满足时提交
+      # COUNT_TIME：
+      # 当每一批 poll() 的数据被消费者监听器（ListenerConsumer）处理之后，手动调用 Acknowledgment.acknowledge() 后提交
+      # MANUAL：
+      # 手动调用 Acknowledgment.acknowledge() 后立即提交，一般使用这种
+      # MANUAL_IMMEDIATE：
+      # listener 负责 ack，每调用一次，就立即 commit
       ack-mode: manual_immediate
-      # \u6D88\u8D39\u76D1\u542C\u63A5\u53E3\u76D1\u542C\u7684\u4E3B\u9898\u4E0D\u5B58\u5728\u65F6\uFF0C\u9ED8\u8BA4\u4F1A\u62A5\u9519
+      # 消费监听接口监听的主题不存在时，默认会报错
       missing-topics-fatal: false
-      # \u4F7F\u7528\u6279\u91CF\u6D88\u8D39\u9700\u8981\u5C06listener\u7684type\u8BBE\u7F6E\u4E3Abatch\uFF0C\u8BE5\u503C\u9ED8\u8BA4\u4E3Asingle
-      #type: batch
+      # 使用批量消费需要将 listener 的 type 设置为 batch，该值默认为 single
+      # type: batch

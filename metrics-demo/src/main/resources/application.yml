@@ -14,7 +14,7 @@ spring:
     deserialization:
       FAIL_ON_UNKNOWN_PROPERTIES: false
 
-# \u66B4\u9732prometheus\u6307\u6807
+# 暴露prometheus指标
 management:
   security:
     enabled: false
