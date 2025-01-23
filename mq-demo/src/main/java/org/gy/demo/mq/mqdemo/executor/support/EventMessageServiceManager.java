@@ -51,7 +51,12 @@ public class EventMessageServiceManager implements InitializingBean, DisposableB
         if (service == null || service.getEventType() == null) {
             return;
         }
-        SERVICE_MAP.putIfAbsent(service.getEventType(), service);
+        //禁止注册相同的事件，避免覆盖导致业务错误
+        EventType eventType = service.getEventType();
+        if (SERVICE_MAP.containsKey(eventType)) {
+            throw new IllegalArgumentException("Event type already registered: " + eventType);
+        }
+        SERVICE_MAP.put(eventType, service);
     }
 
     @Override

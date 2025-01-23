@@ -1,6 +1,8 @@
 package org.gy.demo.mq.mqdemo.executor.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSON;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.gy.demo.mq.mqdemo.executor.EventMessageSendService;
@@ -12,8 +14,10 @@ import org.gy.demo.mq.mqdemo.model.EventMessage;
 import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author gy
@@ -64,21 +68,37 @@ public abstract class AbstractEventMessageService<T, R> implements EventMessageS
 
     @Override
     public void asyncSendInternal(EventMessage<T> req) {
-        this.sendInternal(req);
+        Optional.ofNullable(req).ifPresent(item -> sendInternal(Lists.newArrayList(item)));
     }
 
     @Override
     public void asyncSend(List<EventMessage<T>> reqs) {
-        List<EventMessage<T>> eventSendReqs = Optional.ofNullable(reqs).orElseGet(Collections::emptyList);
-        eventSendReqs.forEach(this::sendInternal);
+        sendInternal(reqs);
     }
 
-    protected void sendInternal(EventMessage<T> item) {
-        if (StringUtils.isNotBlank(item.getOrderlyKey())) {
-            eventMessageSendService.sendOrderlyMessageAsync(item);
-        } else {
-            eventMessageSendService.sendNormalMessageAsync(item);
+    protected void sendInternal(List<EventMessage<T>> reqs) {
+        List<EventMessage<T>> eventMessages = Optional.ofNullable(reqs).orElseGet(Collections::emptyList).stream().filter(Objects::nonNull).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(eventMessages)) {
+            return;
         }
+        boolean supportBatch = eventMessages.stream().allMatch(this::supportBatch);
+        if (supportBatch) {
+            //批量发送普通消息（批量消息不支持延迟、顺序消费）
+            eventMessageSendService.sendNormalMessageAsync(eventMessages);
+            return;
+        }
+        eventMessages.forEach(item -> {
+            if (StringUtils.isNotBlank(item.getOrderlyKey())) {
+                eventMessageSendService.sendOrderlyMessageAsync(item);
+            } else {
+                eventMessageSendService.sendNormalMessageAsync(item);
+            }
+        });
+    }
+
+    protected <T> boolean supportBatch(EventMessage<T> item) {
+        //批量消息不支持延迟、顺序消费
+        return StringUtils.isBlank(item.getOrderlyKey()) && item.getDelayTimeLevel() == 0;
     }
 
     protected <REQ, RES> RES doWithContext(REQ req, Function<REQ, RES> function) {

@@ -1,8 +1,10 @@
 package org.gy.demo.mq.mqdemo.model;
 
 import lombok.Data;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -33,5 +35,12 @@ public class DynamicEventContext<T, R> implements Serializable {
         this.dataType = Objects.requireNonNull(dataType, "executeFunction is required!");
         this.executeFunction = Objects.requireNonNull(executeFunction, "executeFunction is required!");
         this.supportRetry = Objects.requireNonNull(supportRetry, "supportRetry is required!");
+    }
+
+    public static Predicate<Throwable> getRetryPredicate(Class<? extends Throwable>[] retryTypes) {
+        if (ArrayUtils.isEmpty(retryTypes)) {
+            return DynamicEventContext.DEFAULT_PREDICATE;
+        }
+        return Arrays.stream(retryTypes).map(type -> (Predicate<Throwable>) type::isInstance).reduce(Predicate::or).orElse(t -> false);
     }
 }

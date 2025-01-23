@@ -88,12 +88,7 @@ public class DynamicEventStrategyRegister implements BeanDefinitionRegistryPostP
         }
         method.setAccessible(true);
         Function<Object, Object> executeFunction = data -> ReflectionUtils.invokeMethod(method, bean, data);
-
-        Predicate<Throwable> supportRetry = DynamicEventContext.DEFAULT_PREDICATE;
-        Class<? extends Throwable>[] retryTypes = annotation.supportRetry();
-        if (ArrayUtils.isNotEmpty(retryTypes)) {
-            supportRetry = ex -> ArrayUtils.contains(retryTypes, ex.getClass());
-        }
+        Predicate<Throwable> supportRetry = DynamicEventContext.getRetryPredicate(annotation.supportRetry());
 
         Class<?> dataType = paramTypes[0];
         EventType eventType = annotation.eventType();
