@@ -1,9 +1,13 @@
 package org.gy.demo.mq.mqdemo.config;
 
+import com.alibaba.ttl.TtlRunnable;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.framework.core.exception.BizException;
 import org.gy.framework.core.util.JsonUtils;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -20,6 +24,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
+
+    @Bean
+    public BeanPostProcessor threadPoolTaskExecutorBeanPostProcessor() {
+        return new ThreadPoolTaskExecutorBeanPostProcessor();
+    }
 
     @Override
     public Executor getAsyncExecutor() {
@@ -55,5 +64,18 @@ public class AsyncConfig implements AsyncConfigurer {
                 log.error("异步任务异常：方法：{} 参数：{} ", method.getName(), JsonUtils.toJson(params), throwable);
             }
         };
+    }
+
+    public static class ThreadPoolTaskExecutorBeanPostProcessor implements BeanPostProcessor {
+
+        @Override
+        public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+            if (!(bean instanceof ThreadPoolTaskExecutor)) {
+                return bean;
+            }
+            ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) bean;
+            executor.setTaskDecorator(TtlRunnable::get);
+            return executor;
+        }
     }
 }
