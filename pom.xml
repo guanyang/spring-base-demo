@@ -47,6 +47,7 @@
     <spring-boot.version>2.6.3</spring-boot.version>
     <jmh.version>1.35</jmh.version>
     <opentracing.version>0.33.0</opentracing.version>
+    <transmittable-thread-local.version>2.14.5</transmittable-thread-local.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -79,6 +80,12 @@
         <version>${spring.base.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <!-- 解决 ThreadLocal 父子线程的传值问题 -->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>transmittable-thread-local</artifactId>
+        <version>${transmittable-thread-local.version}</version>
       </dependency>
 
       <dependency>
