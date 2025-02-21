@@ -1,16 +1,13 @@
 package org.gy.demo.redisdemo.handler;
 
 import com.baomidou.lock.exception.LockException;
-import java.util.List;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.demo.redisdemo.handler.lock.DistributedLockException;
 import org.gy.framework.core.dto.Response;
 import org.gy.framework.core.exception.BizException;
 import org.gy.framework.core.exception.CommonErrorCode;
 import org.gy.framework.core.exception.CommonException;
+import org.gy.framework.idempotent.exception.IdempotentException;
 import org.gy.framework.limit.exception.LimitException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -27,6 +24,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 全局异常处理
@@ -169,6 +172,12 @@ public class ServiceExceptionHandler {
     public Response handleLockException(RuntimeException e) {
         log.info("[LockException]分布式锁异常捕获: msg={}", e.getMessage(), e);
         return Response.asError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "操作太频繁，请稍后重试!");
+    }
+
+    @ExceptionHandler(IdempotentException.class)
+    public Response<Void> handleException(HttpServletRequest request, IdempotentException e) {
+        log.info("[IdempotentException]幂等异常捕获: url={},code={},msg={}", request.getRequestURI(), e.getCode(), e.getMsg(), e);
+        return Response.asError(e.getCode(), e.getMsg());
     }
 
     private String buildErrMsg(BindingResult br) {

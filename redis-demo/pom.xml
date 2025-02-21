@@ -29,12 +29,14 @@
     <dependency>
       <groupId>org.gy.framework</groupId>
       <artifactId>spring-base-core</artifactId>
-      <version>${spring.base.version}</version>
     </dependency>
     <dependency>
       <groupId>org.gy.framework</groupId>
       <artifactId>spring-base-limit</artifactId>
-      <version>${spring.base.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.gy.framework</groupId>
+      <artifactId>spring-base-idempotent</artifactId>
     </dependency>
     <dependency>
       <groupId>com.baomidou</groupId>

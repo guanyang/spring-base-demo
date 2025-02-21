@@ -43,12 +43,12 @@ management:
     enabled: false
   metrics:
     export:
-      prometheus:
-        enabled: true
-        pushgateway:
-          enabled: true
-          base-url: http://dev.pushgateway:19091
-          push-rate: 10s
+#      prometheus:
+#        enabled: true
+#        pushgateway:
+#          enabled: true
+#          base-url: http://dev.pushgateway:19091
+#          push-rate: 10s
       jmx:
         enabled: true
     tags:

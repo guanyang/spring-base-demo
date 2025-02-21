@@ -12,6 +12,7 @@ import org.gy.demo.redisdemo.handler.lock.DistributedLockException;
 import org.gy.demo.redisdemo.handler.lock.support.RedisDistributedLock;
 import org.gy.demo.redisdemo.model.User;
 import org.gy.framework.core.dto.Response;
+import org.gy.framework.idempotent.annotation.Idempotent;
 import org.gy.framework.limit.annotation.LimitCheck;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,15 @@ public class TestController {
     @GetMapping("/limit")
     @LimitCheck(key = "'GY:LIMIT:TEST:' + #key", limit = 1, time = 10, type = "custom")
     public Response test(String key) {
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("key", key);
+        map.put("time", System.currentTimeMillis());
+        return Response.asSuccess(map);
+    }
+
+    @GetMapping("/idempotent")
+    @Idempotent(timeout = 10)
+    public Response idempotent(String key) {
         Map<String, Object> map = new HashMap<>(2);
         map.put("key", key);
         map.put("time", System.currentTimeMillis());
