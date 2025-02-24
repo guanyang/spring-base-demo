@@ -1,9 +1,6 @@
 package org.gy.demo.redisdemo.controller;
 
 import com.baomidou.lock.annotation.Lock4j;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.gy.demo.redisdemo.handler.lock.DistributedLock;
 import org.gy.demo.redisdemo.handler.lock.DistributedLockAction;
@@ -14,10 +11,15 @@ import org.gy.demo.redisdemo.model.User;
 import org.gy.framework.core.dto.Response;
 import org.gy.framework.idempotent.annotation.Idempotent;
 import org.gy.framework.limit.annotation.LimitCheck;
+import org.gy.framework.limit.core.support.GlobalLimitKeyResolver;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 功能描述：
@@ -36,7 +38,7 @@ public class TestController {
 
 
     @GetMapping("/limit")
-    @LimitCheck(key = "'GY:LIMIT:TEST:' + #key", limit = 1, time = 10, type = "custom")
+    @LimitCheck(key = "'GY:LIMIT:TEST:' + #key", limit = 1, time = 1800, keyResolver = GlobalLimitKeyResolver.class)
     public Response test(String key) {
         Map<String, Object> map = new HashMap<>(2);
         map.put("key", key);
