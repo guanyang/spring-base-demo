@@ -41,7 +41,7 @@ public class CustomLimitCheckService implements ILimitCheckService {
         public LimitItem(int timeSeconds) {
             this.startMillis = System.currentTimeMillis();
             this.count = 0;
-            this.timeMillis = timeSeconds * 1000;
+            this.timeMillis = timeSeconds * 1000L;
         }
 
         public synchronized long incr() {
