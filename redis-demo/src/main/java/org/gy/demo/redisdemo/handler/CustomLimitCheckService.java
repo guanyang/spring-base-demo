@@ -1,10 +1,11 @@
 package org.gy.demo.redisdemo.handler;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.Data;
 import org.gy.framework.limit.core.ILimitCheckService;
-import org.gy.framework.limit.core.support.LimitCheckContext;
+import org.gy.framework.limit.model.LimitCheckContext;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 功能描述：

@@ -2,16 +2,15 @@ package org.gy.demo.redisdemo.controller;
 
 import com.baomidou.lock.annotation.Lock4j;
 import lombok.extern.slf4j.Slf4j;
-import org.gy.demo.redisdemo.handler.lock.DistributedLock;
-import org.gy.demo.redisdemo.handler.lock.DistributedLockAction;
-import org.gy.demo.redisdemo.handler.lock.DistributedLockAction.LockResult;
-import org.gy.demo.redisdemo.handler.lock.DistributedLockException;
-import org.gy.demo.redisdemo.handler.lock.support.RedisDistributedLock;
 import org.gy.demo.redisdemo.model.User;
 import org.gy.framework.core.dto.Response;
 import org.gy.framework.idempotent.annotation.Idempotent;
+import org.gy.framework.idempotent.exception.IdempotentException;
 import org.gy.framework.limit.annotation.LimitCheck;
-import org.gy.framework.limit.core.support.GlobalLimitKeyResolver;
+import org.gy.framework.limit.enums.LimitTypeEnum;
+import org.gy.framework.limit.exception.LimitException;
+import org.gy.framework.lock.annotation.Lock;
+import org.gy.framework.lock.exception.DistributedLockException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 功能描述：
@@ -38,7 +38,8 @@ public class TestController {
 
 
     @GetMapping("/limit")
-    @LimitCheck(key = "'GY:LIMIT:TEST:' + #key", limit = 1, time = 1800, keyResolver = GlobalLimitKeyResolver.class)
+//    @LimitCheck(key = "'GY:LIMIT:TEST:' + #key", limit = 1, time = 1800)
+    @LimitCheck(key = "'GY:LIMIT:TEST:' + #key", limit = 1, capacity = 1, typeEnum = LimitTypeEnum.TOKEN_BUCKET, fallback = "fallbackMethod")
     public Response test(String key) {
         Map<String, Object> map = new HashMap<>(2);
         map.put("key", key);
@@ -46,12 +47,49 @@ public class TestController {
         return Response.asSuccess(map);
     }
 
+    // 降级方法（带 LimitException）
+    public Response<Object> fallbackMethod(String key, LimitException e) {
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("key", key);
+        map.put("time", System.currentTimeMillis());
+        map.put("fallback", e.getMessage());
+        return Response.asSuccess(map);
+    }
+
+    @GetMapping("/lockTest")
+    @Lock(key = "'GY:LOCK:TEST:' + #key", fallback = "fallbackMethod2")
+    public Response<Object> lockTest(String key) throws Exception {
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("key", key);
+        map.put("time", System.currentTimeMillis());
+        TimeUnit.MILLISECONDS.sleep(200);
+        return Response.asSuccess(map);
+    }
+
+    // 降级方法
+    public Response<Object> fallbackMethod2(String key, DistributedLockException e) {
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("key", key);
+        map.put("time", System.currentTimeMillis());
+        map.put("fallback", e.getMessage());
+        return Response.asSuccess(map);
+    }
+
     @GetMapping("/idempotent")
-    @Idempotent(timeout = 10)
+    @Idempotent(timeout = 10, fallback = "fallbackMethod3")
     public Response idempotent(String key) {
         Map<String, Object> map = new HashMap<>(2);
         map.put("key", key);
         map.put("time", System.currentTimeMillis());
+        return Response.asSuccess(map);
+    }
+
+    // 降级方法
+    public Response<Object> fallbackMethod3(String key, IdempotentException e) {
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("key", key);
+        map.put("time", System.currentTimeMillis());
+        map.put("fallback", e.getMessage());
         return Response.asSuccess(map);
     }
 
@@ -69,22 +107,22 @@ public class TestController {
         return Response.asSuccess(user);
     }
 
-    @GetMapping("/lock")
-    public Response<User> testLock(User user) {
-        DistributedLock lock = new RedisDistributedLock(stringRedisTemplate, "GY:LOCK:TEST:" + user.getId(), 60000);
-        LockResult<User> result = DistributedLockAction.execute(lock, 200, 50, () -> {
-            user.setTime(System.currentTimeMillis());
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                // ignore
-            }
-            return user;
-        });
-        if (!result.success()) {
-            throw new DistributedLockException("lock fail");
-        }
-        return Response.asSuccess(result.getData());
-    }
+//    @GetMapping("/lock")
+//    public Response<User> testLock(User user) {
+//        DistributedLock lock = new RedisDistributedLock(stringRedisTemplate, "GY:LOCK:TEST:" + user.getId(), 60000);
+//        LockResult<User> result = DistributedLockAction.execute(lock, 200, 50, () -> {
+//            user.setTime(System.currentTimeMillis());
+//            try {
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                // ignore
+//            }
+//            return user;
+//        });
+//        if (!result.success()) {
+//            throw new DistributedLockException("lock fail");
+//        }
+//        return Response.asSuccess(result.getData());
+//    }
 
 }

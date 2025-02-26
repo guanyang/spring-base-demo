@@ -63,3 +63,6 @@ management:
         include: prometheus
       base-path: /metrics
 
+limitCheck:
+  limit: 3
+
