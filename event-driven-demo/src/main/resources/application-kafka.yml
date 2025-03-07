@@ -1,0 +1,31 @@
+spring:
+  cloud:
+    stream:
+      function:
+        definition: consumer;orderlyConsumer
+      kafka:
+        binder:
+          brokers: dev.kafka:9094
+          autoCreateTopics: true
+          min-partition-count: 4
+          auto-add-partitions: true
+      bindings:
+        producer-out-0:
+          destination: common-topic
+          group: normal_producer_group
+          producer:
+            partition-count: 4
+        orderlyProducer-out-0:
+          destination: orderly-topic
+          group: orderly_producer_group
+          producer:
+            partition-count: 4
+            partition-key-expression: headers['KEYS']
+        consumer-in-0:
+          destination: common-topic
+          group: normal_consumer_group
+        orderlyConsumer-in-0:
+          destination: orderly-topic
+          group: orderly_consumer_group
+          consumer:
+            concurrency: 1

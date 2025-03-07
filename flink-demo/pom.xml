@@ -22,7 +22,7 @@ under the License.
 	<parent>
 		<groupId>org.gy.demo</groupId>
 		<artifactId>spring-base-demo</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>${revision}</version>
 	</parent>
 	<artifactId>flink-demo</artifactId>
 	<packaging>jar</packaging>

@@ -1,0 +1,33 @@
+spring:
+  cloud:
+    stream:
+      function:
+        definition: consumer;orderlyConsumer
+      rocketmq:
+        binder:
+          name-server: dev.rocketmq:9876
+        bindings:
+          producer-out-0:
+            producer:
+              group: normal_producer_group
+          orderlyProducer-out-0:
+            producer:
+              group: orderly_producer_group
+              messageQueueSelector: orderlyMessageQueueSelector
+              sendType: async
+          orderlyConsumer-in-0:
+            consumer:
+#              subscription: *
+              push:
+                orderly: true
+      bindings:
+        producer-out-0:
+          destination: common-topic
+        consumer-in-0:
+          destination: common-topic
+          group: normal_consumer_group
+        orderlyProducer-out-0:
+          destination: orderly-topic
+        orderlyConsumer-in-0:
+          destination: orderly-topic
+          group: orderly_consumer_group

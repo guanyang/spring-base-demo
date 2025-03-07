@@ -1,0 +1,20 @@
+spring:
+  profiles:
+    active: rocketmq
+  application:
+    name: event-driven-demo
+  cloud:
+    stream:
+      default-binder: rocketmq # 默认使用rocketmq
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,bindings
+  metrics:
+    export:
+      kafka:
+        enabled: true
+      rocketmq:
+        enabled: true
