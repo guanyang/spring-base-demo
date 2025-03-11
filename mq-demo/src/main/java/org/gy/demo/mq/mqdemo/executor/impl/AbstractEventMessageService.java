@@ -32,13 +32,17 @@ public abstract class AbstractEventMessageService<T, R> implements EventMessageS
 
     protected abstract Class<T> getDataType();
 
-    protected T convert(EventMessage<T> eventMessage) {
-        if (eventMessage == null) {
+    protected T convert(EventMessage<?> eventMessage) {
+        if (eventMessage == null || eventMessage.getData() == null) {
             log.warn("[EventMessageService]消息数据为空");
             return null;
         }
         try {
-            return JSON.to(getDataType(), eventMessage.getData());
+            Class<T> dataType = getDataType();
+            if (dataType.isInstance(eventMessage.getData())) {
+                return (T) eventMessage.getData();
+            }
+            return JSON.to(dataType, eventMessage.getData());
         } catch (Exception e) {
             log.error("[EventMessageService]消息数据转换异常, event={}.", eventMessage, e);
             return null;
@@ -63,7 +67,7 @@ public abstract class AbstractEventMessageService<T, R> implements EventMessageS
 
     @Override
     public R synchronousSend(EventMessage<T> req) {
-        return EventLogContext.handleWithLog(req, this::internalExecuteWithContext);
+        return EventLogContext.handleWithLog(req, this::execute);
     }
 
     @Override

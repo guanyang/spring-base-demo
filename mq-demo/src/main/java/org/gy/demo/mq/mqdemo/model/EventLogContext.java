@@ -45,12 +45,12 @@ public class EventLogContext<REQ extends EventMessage<?>, RES> implements Serial
         return JSON.toJSONString(this);
     }
 
-    public static <T, R> R handleWithLog(EventMessage<T> req, Function<T, R> function) {
+    public static <T, R> R handleWithLog(EventMessage<T> req, Function<EventMessage<T>, R> function) {
         Objects.requireNonNull(req, "EventSendReq is required!");
         Objects.requireNonNull(function, "Function is required!");
         EventLogContext<EventMessage<?>, Object> ctx = EventLogContext.builder().requestId(req.getRequestId()).request(req).build();
         try {
-            R response = function.apply(req.getData());
+            R response = function.apply(req);
             // 保存事件日志（异步）
             ctx.setResponse(response);
             return response;

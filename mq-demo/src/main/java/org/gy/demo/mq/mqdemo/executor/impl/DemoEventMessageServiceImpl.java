@@ -36,7 +36,7 @@ public class DemoEventMessageServiceImpl extends AbstractEventMessageService<Str
     }
 
     @Override
-    protected String convert(EventMessage<String> event) {
+    protected String convert(EventMessage<?> event) {
         return Optional.ofNullable(event).map(EventMessage::getData).map(Object::toString).orElse(StrUtil.EMPTY);
     }
 
