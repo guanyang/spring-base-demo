@@ -19,13 +19,13 @@ spring:
       hikari:
         connection-timeout: 30000   #连接超时，单位毫秒，默认30s
         validation-timeout: 5000    #检测连接是否有效，单位毫秒，默认5s
-        keepalive-time: 30000       #连接探活时间，单位毫秒，默认禁用，建议60s
-        idle-timeout: 60000        #空闲连接最大存活时间，默认600000ms（10分钟）
-        max-lifetime: 300000        #连接最长生命周期，建议小于mysql wait_timeout，单位毫秒，默认30min
+        keepalive-time: 300000       #连接探活时间，单位毫秒，默认禁用，建议60s
+        idle-timeout: 600000        #空闲连接最大存活时间，默认600000ms（10分钟）
+        max-lifetime: 1500000        #连接最长生命周期，建议小于mysql wait_timeout，单位毫秒，默认30min
         connection-test-query: select 1
-        minimum-idle: 10            #最小空闲连接数，默认=maxPoolSize
-        maximum-pool-size: 100      #连接池最大值，建议与minimumIdle值相同从而保证性能，默认10，连接数 = ((cpu核数 * 2) + 磁盘有效主轴数)
-        leak-detection-threshold: 10000 # 连接泄漏检测阈值（毫秒），默认 0（关闭），生产建议 60s 以上
+        minimum-idle: 30            #最小空闲连接数，默认=maxPoolSize
+        maximum-pool-size: 30      #连接池最大值，建议与minimumIdle值相同从而保证性能，默认10，连接数 = ((cpu核数 * 2) + 磁盘有效主轴数)
+#        leak-detection-threshold: 60000 # 连接泄漏检测阈值（毫秒），默认 0（关闭），生产建议 60s 以上
         data-source-properties:     #数据库连接属性配置参考：https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration
           #https://dev.mysql.com/doc/connector-j/8.1/en/connector-j-reference-configuration-properties.html
           #https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf
