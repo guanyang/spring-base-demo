@@ -26,21 +26,21 @@ spring:
         minimum-idle: 30            #最小空闲连接数，默认=maxPoolSize
         maximum-pool-size: 30      #连接池最大值，建议与minimumIdle值相同从而保证性能，默认10，连接数 = ((cpu核数 * 2) + 磁盘有效主轴数)
 #        leak-detection-threshold: 60000 # 连接泄漏检测阈值（毫秒），默认 0（关闭），生产建议 60s 以上
-        data-source-properties:     #数据库连接属性配置参考：https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration
-          #https://dev.mysql.com/doc/connector-j/8.1/en/connector-j-reference-configuration-properties.html
-          #https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf
-          cachePrepStmts: true
-          prepStmtCacheSize: 250
-          prepStmtCacheSqlLimit: 2048
-          useServerPrepStmts: true
-          useLocalSessionState: true
-          rewriteBatchedStatements: true
-          cacheResultSetMetadata: true
-          cacheServerConfiguration: true
-          elideSetAutoCommits: true
-          maintainTimeStats: false
-          tcpKeepAlive: true
-          tcpNoDelay: true
+#        data-source-properties:     #数据库连接属性配置参考：https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration
+#          #https://dev.mysql.com/doc/connector-j/8.1/en/connector-j-reference-configuration-properties.html
+#          #https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf
+#          cachePrepStmts: true
+#          prepStmtCacheSize: 250
+#          prepStmtCacheSqlLimit: 2048
+#          useServerPrepStmts: true
+#          useLocalSessionState: true
+#          rewriteBatchedStatements: true
+#          cacheResultSetMetadata: true
+#          cacheServerConfiguration: true
+#          elideSetAutoCommits: true
+#          maintainTimeStats: false
+#          tcpKeepAlive: true
+#          tcpNoDelay: true
 #      druid:
 #        initial-size: 5
 #        max-active: 20
