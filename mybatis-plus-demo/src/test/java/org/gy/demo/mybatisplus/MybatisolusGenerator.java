@@ -3,6 +3,7 @@ package org.gy.demo.mybatisplus;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
+import com.baomidou.mybatisplus.generator.config.TemplateType;
 import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 
@@ -18,6 +19,8 @@ import java.util.Collections;
  */
 public class MybatisolusGenerator {
 
+    public static final String MAPPER_TEMPLATE = "/templates/mapper.java";
+    public static final String MAPPER_XML_TEMPLATE = "/templates/mapper.xml";
 
     // 数据源 url
     static final String url = "jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8";
@@ -42,7 +45,7 @@ public class MybatisolusGenerator {
         String mavenProjectName = "mybatis-plus-demo";
         String sourcePath = path + mavenProjectName + SRC_PATH;
         String mapperXmlPath = path + mavenProjectName + RESOURCE_PATH + "/mappers";
-        String[] tableNames = {"hello_world_new"};
+        String[] tableNames = {"test_inventory"};
         generator(author, basePackage, sourcePath, mapperXmlPath, url, username, password, tableNames);
     }
 
@@ -102,7 +105,9 @@ public class MybatisolusGenerator {
                 })
                 .templateEngine(new FreemarkerTemplateEngine()) // 使用Freemarker引擎模板，默认的是Velocity引擎模板
                 .templateConfig(builder -> {
-//                    builder.disable(TemplateType.CONTROLLER);   //禁用controller生成
+                    builder.disable(TemplateType.CONTROLLER);   //禁用controller生成
+                    builder.mapper(MAPPER_TEMPLATE);
+                    builder.xml(MAPPER_XML_TEMPLATE);
                 })
                 .execute();
     }
