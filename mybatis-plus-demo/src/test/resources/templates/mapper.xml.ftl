@@ -36,66 +36,46 @@
     </sql>
     </#if>
 
-    <!-- 单个插入或更新（插入和更新都只处理非空字段） -->
-    <insert id="upsertSelective">
-        INSERT INTO ${table.name}
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <#list table.fields as field>
-                <if test="${field.propertyName} != null">
-                    ${field.name},
-                </if>
-            </#list>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <#list table.fields as field>
-                <if test="${field.propertyName} != null">
-                    ${r"#{"}${field.propertyName}${r"}"},
-                </if>
-            </#list>
-        </trim>
-        AS new
-        ON DUPLICATE KEY UPDATE
-        <trim suffixOverrides=",">
-        <#list table.fields as field>
-            <#if !field.keyFlag>
-                <if test="${field.propertyName} != null">
-                    ${field.name} = new.${field.name},
-                </if>
-            </#if>
-        </#list>
-        </trim>
-    </insert>
-
-    <!-- 批量插入或更新（插入和更新都只处理非空字段） -->
+    <!-- 批量插入或更新（插入和更新都只处理非空字段，处理的字段必须一样） -->
     <insert id="batchUpsertSelective">
         INSERT INTO ${table.name}
+        <!-- 批量插入或更新-字段列表sql定义 -->
+        <include refid="BatchUpsert_Column_List"/>
+        VALUES
+        <!-- 批量插入或更新-插入值sql定义 -->
+        <include refid="BatchUpsert_Column_Values"/>
+        AS new
+        ON DUPLICATE KEY UPDATE
+        <!-- 批量插入或更新-更新字段sql定义 -->
+        <include refid="BatchUpsert_Update_Set"/>
+    </insert>
+
+    <!-- 批量插入或更新-字段列表sql定义 -->
+    <sql id="BatchUpsert_Column_List">
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <#list table.fields as field>
-                <if test="list[0].${field.propertyName} != null">
-                    ${field.name},
-                </if>
+            <if test="list[0].${field.propertyName} != null">${field.name},</if>
             </#list>
         </trim>
-        VALUES
+    </sql>
+    <!-- 批量插入或更新-插入值sql定义 -->
+    <sql id="BatchUpsert_Column_Values">
         <foreach collection="list" item="item" separator=",">
             <trim prefix="(" suffix=")" suffixOverrides=",">
                 <#list table.fields as field>
-                    <if test="item.${field.propertyName} != null">
-                        ${r"#{item."}${field.propertyName}${r"}"},
-                    </if>
+                <if test="item.${field.propertyName} != null">${r"#{item."}${field.propertyName}${r"}"},</if>
                 </#list>
             </trim>
         </foreach>
-        AS new
-        ON DUPLICATE KEY UPDATE
+    </sql>
+    <!-- 批量插入或更新-更新字段sql定义 -->
+    <sql id="BatchUpsert_Update_Set">
         <trim suffixOverrides=",">
-        <#list table.fields as field>
-            <#if !field.keyFlag>
-                <if test="list[0].${field.propertyName} != null">
-                    ${field.name} = new.${field.name},
-                </if>
-            </#if>
-        </#list>
+            <#list table.fields as field>
+                <#if !field.keyFlag>
+            <if test="list[0].${field.propertyName} != null">${field.name} = new.${field.name},</if>
+                </#if>
+            </#list>
         </trim>
-    </insert>
+    </sql>
 </mapper>
