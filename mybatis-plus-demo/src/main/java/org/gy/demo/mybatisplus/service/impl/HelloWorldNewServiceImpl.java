@@ -7,6 +7,8 @@ import org.gy.demo.mybatisplus.mapper.HelloWorldNewMapper;
 import org.gy.demo.mybatisplus.model.TestRequest;
 import org.gy.demo.mybatisplus.model.TestResponse;
 import org.gy.demo.mybatisplus.service.IHelloWorldNewService;
+import org.gy.framework.mq.annotation.DynamicEventStrategy;
+import org.gy.framework.mq.model.IEventType.EventTypeCode;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,6 +116,7 @@ public class HelloWorldNewServiceImpl extends CommonServiceImpl<HelloWorldNewMap
     }
 
     @Override
+    @DynamicEventStrategy(eventTypeCode = EventTypeCode.DEFAULT_DEMO)
     public TestResponse hello(TestRequest request) {
         TestResponse response = new TestResponse();
         response.setName(request.getName());

@@ -11,6 +11,16 @@ spring:
     active: local
   application:
     name: mybatis-plus-demo
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 12345678
+    lettuce:
+      pool:
+        max-active: 200
+        max-wait: 2000ms
+        max-idle: 50
+        min-idle: 10
   datasource:
     dynamic:
       primary: master #设置默认的数据源或者数据源组,默认值即为master
@@ -101,3 +111,24 @@ logging:
   level:
     com.baomidou.dynamic: debug
     org.gy.demo.mybatisplus.mapper: debug
+
+rocketmq:
+  normal:        #配置标识，自定义即可
+    nameServer: dev.rocketmq:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+    topic: normal_topic_dev_gy    #【必须】消息topic
+    producer:     #producer配置
+      groupName: NormalProducerGroupDev_gy    #【producer存在时必须】组名称，保证唯一
+      instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
+      sendMessageTimeout: 3000    #消息发送超时时间，单位：毫秒，默认：3000
+      retryTimesWhenSendFailed: 5   #消息同步发送失败重试次数，默认：2
+      retryTimesWhenSendAsyncFailed: 5    #消息异步发送失败重试次数，默认：2
+    consumer:        #consumer配置
+      groupName: NormalConsumerGroupDev_gy    #【consumer存在时必须】组名称，保证唯一
+      instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
+      messageModel: CLUSTERING  #消费模式，CLUSTERING集群，BROADCASTING广播，默认：CLUSTERING
+      selectorExpression: '*'   #消费tag表达式定义，*匹配所有，格式：tag1||tag2，默认：*
+      consumeMessageBatchMaxSize: 1   #批量消费消息数量，默认：1
+      consumeThreadMin: 16    #消费线程最小值定义，默认：20
+      consumeThreadMax: 16    #消费线程最大值定义，默认：20
+      consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET
+      listenerBeanName: defaultNormalListener
