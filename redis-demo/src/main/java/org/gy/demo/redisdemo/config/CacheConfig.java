@@ -1,5 +1,6 @@
 package org.gy.demo.redisdemo.config;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.concurrent.TimeUnit;
 import org.springframework.cache.CacheManager;
@@ -16,17 +17,37 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CacheConfig {
 
+//    @Bean(name = "localCache")
+//    public CacheManager cacheManager() {
+//        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+//        cacheManager.setCaffeine(Caffeine.newBuilder()
+//            // 设置最后一次写入或访问后经过固定时间过期
+//            .expireAfterAccess(300, TimeUnit.SECONDS)
+//            // 初始的缓存空间大小
+//            .initialCapacity(100)
+//            // 缓存的最大条数
+//            .maximumSize(1000));
+//        return cacheManager;
+//    }
+
     @Bean(name = "localCache")
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCaffeine(Caffeine.newBuilder()
-            // 设置最后一次写入或访问后经过固定时间过期
-            .expireAfterAccess(300, TimeUnit.SECONDS)
-            // 初始的缓存空间大小
-            .initialCapacity(100)
-            // 缓存的最大条数
-            .maximumSize(1000));
-        return cacheManager;
+        return new DynamicCaffeineCacheManager();
+    }
+
+    public static class DynamicCaffeineCacheManager extends CaffeineCacheManager {
+
+        @Override
+        protected Cache<Object, Object> createNativeCaffeineCache(String name) {
+            String[] parts = name.split("#");
+            String cacheName = parts[0];
+            long ttl = parts.length > 1 ? Long.parseLong(parts[1]) : 600; // 默认 600s
+            return Caffeine.newBuilder()
+                    .expireAfterWrite(ttl, TimeUnit.SECONDS)
+                    .softValues()
+                    .maximumSize(1000)
+                    .build();
+        }
     }
 
 }

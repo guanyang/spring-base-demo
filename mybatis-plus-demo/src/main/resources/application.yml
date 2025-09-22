@@ -86,7 +86,57 @@ spring:
           driver-class-name: com.mysql.cj.jdbc.Driver
 #          driver-class-name: com.p6spy.engine.spy.P6SpyDriver
           type: com.zaxxer.hikari.HikariDataSource
-#          type: com.alibaba.druid.pool.DruidDataSource
+          #          type: com.alibaba.druid.pool.DruidDataSource
+  fs-mq:
+#    rocketmq:
+#      orderly: #配置标识，自定义即可
+#        nameServer: dev.rocketmq:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+#        topic: orderly_topic_dev_gy    #【必须】消息topic
+#        producer: #producer配置
+#          groupName: OrderlyProducerGroupDev_gy    #【producer存在时必须】组名称，保证唯一
+#        consumer: #consumer配置
+#          groupName: OrderlyConsumerGroupDev_gy    #【consumer存在时必须】组名称，保证唯一
+#          listenerBeanName: defaultOrderlyListener
+#      normal: #配置标识，自定义即可
+#        nameServer: dev.rocketmq:9876    #【必须】nameServer地址，格式: `host:port;host:port`
+#        topic: normal_topic_dev_gy    #【必须】消息topic
+#        producer: #producer配置
+#          groupName: NormalProducerGroupDev_gy    #【producer存在时必须】组名称，保证唯一
+#          instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
+#          sendMessageTimeout: 3000    #消息发送超时时间，单位：毫秒，默认：3000
+#          retryTimesWhenSendFailed: 5   #消息同步发送失败重试次数，默认：2
+#          retryTimesWhenSendAsyncFailed: 5    #消息异步发送失败重试次数，默认：2
+#        consumer: #consumer配置
+#          groupName: NormalConsumerGroupDev_gy    #【consumer存在时必须】组名称，保证唯一
+#          instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
+#          messageModel: CLUSTERING  #消费模式，CLUSTERING集群，BROADCASTING广播，默认：CLUSTERING
+#          selectorExpression: '*'   #消费tag表达式定义，*匹配所有，格式：tag1||tag2，默认：*
+#          consumeMessageBatchMaxSize: 1   #批量消费消息数量，默认：1
+#          consumeThreadMin: 16    #消费线程最小值定义，默认：20
+#          consumeThreadMax: 16    #消费线程最大值定义，默认：20
+#          consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET
+#          listenerBeanName: defaultNormalListener
+    kafka:
+      defaultConfig: #配置标识，需要与IMessageType的code一致，必须唯一
+        bootstrapServers:
+          - dev.kafka:9094
+        topic: default_topic_dev
+        producer:
+          retries: 5 #消息发送失败重试次数
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer #key序列化器，默认：StringSerializer
+          value-serializer: org.apache.kafka.common.serialization.StringSerializer #value序列化器，默认：StringSerializer
+          acks: 1 #消息发送成功确认，0：不确认，1：Leader确认，-1/all：所有ISR确认
+        consumer:
+          group-id: default_consumer_group_dev #【consumer存在时必须】消费组ID，保证唯一
+          enable-auto-commit: false #是否自动提交消费位点
+          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer #key反序列化器，默认：StringDeserializer
+          value-deserializer: org.apache.kafka.common.serialization.StringDeserializer #value反序列化器，默认：StringDeserializer
+          auto-offset-reset: latest #自动偏移量，latest：最新，earliest：最旧，none：无，默认：latest
+          max-poll-records: 50 #每次拉取最大消息数，默认：500
+        listener:
+          concurrency: 1 #监听器容器中线程数，不能超过topic分区数
+          ack-mode: MANUAL_IMMEDIATE #手动提交确认模式，参考AckMode枚举，建议：MANUAL_IMMEDIATE
+          listener-bean-name: defaultKafkaListener #消费监听器bean名称
 
 mybatis-plus:
   # 如果是放在resource目录 classpath:/mapper/*Mapper.xml
@@ -111,24 +161,3 @@ logging:
   level:
     com.baomidou.dynamic: debug
     org.gy.demo.mybatisplus.mapper: debug
-
-rocketmq:
-  normal:        #配置标识，自定义即可
-    nameServer: dev.rocketmq:9876    #【必须】nameServer地址，格式: `host:port;host:port`
-    topic: normal_topic_dev_gy    #【必须】消息topic
-    producer:     #producer配置
-      groupName: NormalProducerGroupDev_gy    #【producer存在时必须】组名称，保证唯一
-      instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
-      sendMessageTimeout: 3000    #消息发送超时时间，单位：毫秒，默认：3000
-      retryTimesWhenSendFailed: 5   #消息同步发送失败重试次数，默认：2
-      retryTimesWhenSendAsyncFailed: 5    #消息异步发送失败重试次数，默认：2
-    consumer:        #consumer配置
-      groupName: NormalConsumerGroupDev_gy    #【consumer存在时必须】组名称，保证唯一
-      instanceName: DEFAULT   #同一个组定义多个实例，需要定义不同的实例名称，避免冲突，默认：DEFAULT
-      messageModel: CLUSTERING  #消费模式，CLUSTERING集群，BROADCASTING广播，默认：CLUSTERING
-      selectorExpression: '*'   #消费tag表达式定义，*匹配所有，格式：tag1||tag2，默认：*
-      consumeMessageBatchMaxSize: 1   #批量消费消息数量，默认：1
-      consumeThreadMin: 16    #消费线程最小值定义，默认：20
-      consumeThreadMax: 16    #消费线程最大值定义，默认：20
-      consumeFromWhere: CONSUME_FROM_LAST_OFFSET    #消费位置定义，参考ConsumeFromWhere枚举，默认：CONSUME_FROM_LAST_OFFSET
-      listenerBeanName: defaultNormalListener

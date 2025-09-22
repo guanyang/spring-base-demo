@@ -8,10 +8,14 @@ import org.gy.demo.mybatisplus.model.TestRequest;
 import org.gy.demo.mybatisplus.model.TestResponse;
 import org.gy.demo.mybatisplus.service.IHelloWorldNewService;
 import org.gy.framework.mq.annotation.DynamicEventStrategy;
-import org.gy.framework.mq.model.IEventType.EventTypeCode;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.gy.framework.mq.model.IEventType.EventTypeCode.DEFAULT_DEMO;
+import static org.gy.framework.mq.model.IMessageType.MessageTypeCode.DEFAULT_KAFKA;
+import static org.gy.framework.mq.model.IMessageType.MessageTypeCode.DEFAULT_NORMAL;
+
 
 /**
  * <p>
@@ -116,7 +120,7 @@ public class HelloWorldNewServiceImpl extends CommonServiceImpl<HelloWorldNewMap
     }
 
     @Override
-    @DynamicEventStrategy(eventTypeCode = EventTypeCode.DEFAULT_DEMO)
+    @DynamicEventStrategy(eventTypeCode = DEFAULT_DEMO, messageTypeCode = {DEFAULT_KAFKA, DEFAULT_NORMAL})
     public TestResponse hello(TestRequest request) {
         TestResponse response = new TestResponse();
         response.setName(request.getName());

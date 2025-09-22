@@ -33,7 +33,17 @@
         <dependency>
             <groupId>org.gy.framework</groupId>
             <artifactId>spring-base-mq</artifactId>
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>rocketmq-spring-boot-starter</artifactId>-->
+<!--                    <groupId>org.apache.rocketmq</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.kafka</groupId>-->
+<!--            <artifactId>spring-kafka</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -87,6 +97,10 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
 
         <dependency>

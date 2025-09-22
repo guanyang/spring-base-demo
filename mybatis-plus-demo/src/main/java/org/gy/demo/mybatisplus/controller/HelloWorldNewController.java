@@ -3,22 +3,24 @@ package org.gy.demo.mybatisplus.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
-import com.zaxxer.hikari.HikariConfig;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.gy.demo.mybatisplus.entity.HelloWorldNew;
 import org.gy.demo.mybatisplus.model.TestRequest;
 import org.gy.demo.mybatisplus.model.TestResponse;
 import org.gy.demo.mybatisplus.service.IHelloWorldNewService;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
-import org.springframework.core.io.ClassPathResource;
+import org.gy.framework.mq.core.EventMessageProducerService;
+import org.gy.framework.mq.core.support.EventMessageServiceManager;
+import org.gy.framework.mq.model.IEventType.DefaultEventType;
+import org.gy.framework.mq.model.IMessageType.MessageTypeCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author gy
  * @since 2023-07-14
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/v2")
 public class HelloWorldNewController {
@@ -82,19 +85,17 @@ public class HelloWorldNewController {
         return ResponseEntity.ok(result);
     }
 
-    public static void main(String[] args) {
-        YamlPropertiesFactoryBean factoryBean = new YamlPropertiesFactoryBean();
-//        factoryBean.setResources(HelloWorldNewController.class.getClassLoader().getResource("application.yml"));
-        factoryBean.setResources(new ClassPathResource("rule-config-dev.yaml"));
-        Properties object = factoryBean.getObject();
-        HikariConfig config = new HikariConfig(object);
-        System.out.println(config);
-
-    }
-
     @GetMapping("/testValid")
     public ResponseEntity<TestResponse> hello(TestRequest request) {
         return ResponseEntity.ok(helloWorldNewService.hello(request));
+    }
+
+    @GetMapping("/sendMsg")
+    public ResponseEntity<TestRequest> sendMsg(TestRequest request) {
+        EventMessageProducerService sendService = EventMessageServiceManager.getSendService(MessageTypeCode.DEFAULT_KAFKA);
+        sendService.asyncSend(request, DefaultEventType.DEMO_EVENT);
+        log.info("[sendMsg]发送消息成功：{}", request);
+        return ResponseEntity.ok(request);
     }
 
 }

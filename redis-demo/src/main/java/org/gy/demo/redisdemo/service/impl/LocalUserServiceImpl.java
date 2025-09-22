@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 @CacheConfig(cacheManager = "localCache")
 public class LocalUserServiceImpl implements UserService {
 
-    public static final String CACHE_NAME = "gy:test:localUser";
+    public static final String CACHE_NAME = "gy:test:localUser#300";
 
     @Override
     @Cacheable(cacheNames = CACHE_NAME, key = "#id", condition = "#a0>0", sync = true)
